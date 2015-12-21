@@ -42,44 +42,28 @@ defmodule Exfile.Router do
   get "/:_token/:backend/:id/:_filename" do
     authenticate(conn)
     |> download_allowed?(backend)
-    |> stream_file(file(backend, id))
+    |> set_file(backend, id)
+    |> stream_file
   end
 
-  # get "/:_token/:backend/:_processor/:id/:_file_basename.:extension" do
-  #   authenticate(conn)
-  #   |> download_allowed?(backend)
-  #   |> send_resp(conn, 200, "downloading #{_file_basename}.#{extension}")
+  get "/:_token/:backend/:processor/:id/:_filename" do
+    authenticate(conn)
+    |> download_allowed?(backend)
+    |> set_file(backend, id)
+    |> process_file(processor)
+    |> stream_file
+  end
 
-  #   # halt 404 unless download_allowed?
-  #   # stream_file processor.call(file, format: params[:extension])
-  # end
+  get "/:_token/:backend/:processor/*unparsed_args" when length(unparsed_args) > 2 do
+    [id, _filename] = Enum.slice(unparsed_args, -2, 2)
+    args = Enum.slice(unparsed_args, 0..-3)
 
-  # get "/:_token/:backend/:_processor/:id/:_filename" do
-  #   authenticate(conn)
-  #   |> download_allowed?(backend)
-  #   |> send_resp(conn, 200, "downloading #{filename}")
-
-  #   # halt 404 unless download_allowed?
-  #   # stream_file processor.call(file)
-  # end
-
-  # get "/:_token/:backend/:_processor/*_args/:id/:_file_basename.:extension" do
-  #   authenticate(conn)
-  #   |> download_allowed?(backend)
-  #   |> send_resp(conn, 200, "downloading #{_file_basename}.#{extension}")
-
-  #   # halt 404 unless download_allowed?
-  #   # stream_file processor.call(file, *params[:splat].first.split("/"), format: params[:extension])
-  # end
-
-  # get "/:_token/:backend/:_processor/*_args/:id/:_filename" do
-  #   authenticate(conn)
-  #   |> download_allowed?(backend)
-  #   |> send_resp(conn, 200, "downloading #{_filename}")
-
-  #   # halt 404 unless download_allowed?
-  #   # stream_file processor.call(file, *params[:splat].first.split("/"))
-  # end
+    authenticate(conn)
+    |> download_allowed?(backend)
+    |> set_file(backend, id)
+    |> process_file(processor, args)
+    |> stream_file
+  end
 
   options "/:_backend" do
     send_resp(conn, 200, "")
@@ -88,12 +72,6 @@ defmodule Exfile.Router do
   post "/:backend" do
     upload_allowed?(conn, backend)
     |> process_uploaded_file(backend)
-
-    # halt 404 unless upload_allowed?
-    # tempfile = request.params.fetch("file").fetch(:tempfile)
-    # file = backend.upload(tempfile)
-    # content_type :json
-    # { id: file.id }.to_json
   end
 
   # get "/:backend/presign" do
@@ -106,15 +84,29 @@ defmodule Exfile.Router do
     send_resp(conn, 404, "file not found")
   end
 
-  defp file(backend, id) do
-    %Exfile.File{
+  defp set_file(%{halted: true} = conn, _, _), do: conn
+  defp set_file(conn, backend, id) do
+    file = %Exfile.File{
       id: id,
       backend: Config.backends[backend]
     }
+    assign(conn, :exfile_file, file)
   end
 
-  defp stream_file(%{halted: true} = conn, _), do: conn
-  defp stream_file(conn, file) do
+  defp process_file(conn, processor, args \\ [])
+  defp process_file(%{halted: true} = conn, _, _), do: conn
+  defp process_file(%{assigns: %{exfile_file: file}} = conn, processor, args) do
+
+    case Exfile.ProcessorRegistry.process(processor, file, args) do
+      {:ok, processed_file} ->
+        assign(conn, :exfile_file, processed_file)
+      {:error, reason} ->
+        send_resp(conn, 500, "processing using #{processor} failed with reason #{reason}") |> halt
+    end
+  end
+
+  defp stream_file(%{halted: true} = conn), do: conn
+  defp stream_file(%{assigns: %{exfile_file: file}} = conn) do
     filename = List.last(conn.path_info)
     case Exfile.File.download(file) do
       {:ok, file} ->
@@ -122,11 +114,7 @@ defmodule Exfile.Router do
         |> put_resp_header("content-disposition", "inline; filename=#{filename}")
         |> send_chunked(200)
         stream = IO.binstream(file.io, @read_buffer)
-        Enum.reduce stream, conn, fn(file_chunk, conn) ->
-          {:ok, conn} = chunk(conn, file_chunk)
-          conn
-        end
-        conn
+        Enum.into stream, conn
       _error ->
         send_resp(conn, 404, "file not found")
     end
@@ -137,13 +125,15 @@ defmodule Exfile.Router do
     file = conn.params["file"]
     process_uploaded_file(conn, backend, file)
   end
-  defp process_uploaded_file(conn, backend, %Plug.Upload{} = file) do
-    {:ok, f} = File.open(file.path, [:read, :binary])
+  defp process_uploaded_file(conn, backend, %Plug.Upload{} = uploaded_file) do
+    {:ok, f} = File.open(uploaded_file.path, [:read, :binary])
     backend = Config.backends[backend]
     mod = backend.backend_mod
     file = mod.upload(backend, f)
     File.close(f)
-    send_resp(conn, 200, "{\"id\":\"#{file.id}\"}")
+
+    put_resp_content_type(conn, "application/json")
+    |> send_resp(200, "{\"id\":\"#{file.id}\"}")
   end
   defp process_uploaded_file(conn, _backend, nil) do
     send_resp(conn, 400, "please upload a file") |> halt

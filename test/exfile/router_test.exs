@@ -26,12 +26,36 @@ defmodule Exfile.RouterTest do
   end
 
   test "returns 200 on request to file that exists" do
-    :ok = File.touch(Path.expand("./tmp/cache/exists"))
+    contents = "hello there"
+    :ok = File.write(Path.expand("./tmp/cache/exists"), contents)
     conn = conn(:get, "/" <> Token.build_path("cache/exists/test.txt"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :chunked
     assert conn.status == 200
+    assert conn.resp_body == contents
+  end
+
+  test "returns correctly processed file" do
+    contents = "hello there"
+    :ok = File.write(Path.expand("./tmp/cache/processtest"), contents)
+    conn = conn(:get, "/" <> Token.build_path("cache/reverse/processtest/test.txt"))
+    conn = Router.call(conn, @opts)
+
+    assert conn.state == :chunked
+    assert conn.status == 200
+    assert conn.resp_body == String.reverse(contents)
+  end
+
+  test "returns correctly processed file with arguments" do
+    contents = "hello there"
+    :ok = File.write(Path.expand("./tmp/cache/process-arg-test"), contents)
+    conn = conn(:get, "/" <> Token.build_path("cache/truncate/5/process-arg-test/test.txt"))
+    conn = Router.call(conn, @opts)
+
+    assert conn.state == :chunked
+    assert conn.status == 200
+    assert conn.resp_body == "hello"
   end
 
   test "returns 200 on an OPTIONS request to /:backend" do
