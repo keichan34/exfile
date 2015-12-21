@@ -26,7 +26,7 @@ defmodule Exfile.RouterTest do
   end
 
   test "returns 200 on request to file that exists" do
-    :ok = File.touch(Path.expand("./priv/tmp/cache/exists"))
+    :ok = File.touch(Path.expand("./tmp/cache/exists"))
     conn = conn(:get, "/" <> Token.build_path("cache/exists/test.txt"))
     conn = Router.call(conn, @opts)
 
@@ -65,6 +65,6 @@ defmodule Exfile.RouterTest do
     body = Poison.decode!(conn.resp_body)
     assert body["id"] != nil
 
-    assert File.exists?(Path.expand("./priv/tmp/cache/#{body["id"]}")) == true
+    assert File.exists?(Path.expand("./tmp/cache/#{body["id"]}")) == true
   end
 end

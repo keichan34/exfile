@@ -15,6 +15,7 @@ defmodule Exfile.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
+      mod: {Exfile, []},
       applications: [
         :logger,
         :plug,
