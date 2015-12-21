@@ -8,6 +8,9 @@ defmodule Exfile.Token do
     end
   end
 
+  def build_path(path),
+    do: Path.join(generate_token(path), path)
+
   def generate_token(path),
     do: do_generate_token(path) |> Base.url_encode64
 
