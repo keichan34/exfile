@@ -26,3 +26,40 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
         def application do
           [applications: [:exfile]]
         end
+
+  3. Mount the Exfile routes in your router.
+
+### Phoenix
+
+```elixir
+defmodule MyApp.Router do
+  use MyApp.Web, :router
+
+  foward "/attachments", Exfile.Router
+  ...
+```
+
+### Plug
+
+```elixir
+defmodule MyApp.Router do
+  use Plug.Router
+
+  forward "/attachments", to: Exfile.Router
+  ...
+```
+
+## Configuration
+
+In `config.exs`:
+
+```elixir
+config :exfile, Exfile,
+  secret: "secret string to generate the token used to authenticate requests",
+  backends: %{
+    "store" => configuration for a persistent store,
+    "cache" => configuration for an ephemeral cache
+  }
+```
+
+See `lib/exfile/config.ex` for defaults.
