@@ -18,7 +18,7 @@ defmodule Exfile.Backend.FileSystem do
     {:ok, f} = File.open path(backend, id), [:write, :binary]
     Enum.into(IO.binstream(uploadable, @read_buffer), IO.binstream(f, @read_buffer))
     File.close(f)
-    %Exfile.File{backend: backend, id: id}
+    {:ok, %Exfile.File{backend: backend, id: id}}
   end
 
   def delete(backend, id) do
@@ -44,9 +44,5 @@ defmodule Exfile.Backend.FileSystem do
 
   def exists?(backend, id) do
     File.exists?(path(backend, id))
-  end
-
-  def path(backend, id) do
-    Path.join(backend.directory, id)
   end
 end
