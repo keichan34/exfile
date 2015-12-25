@@ -7,7 +7,8 @@ defmodule Exfile.Backend do
     backend_mod: nil,
     directory: "",
     max_size: nil,
-    hasher: nil
+    hasher: nil,
+    meta: %{}
   )
 
   @type backend :: map
