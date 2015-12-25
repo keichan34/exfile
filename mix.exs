@@ -53,7 +53,7 @@ defmodule Exfile.Mixfile do
       licenses: ["MIT"],
       links: %{
         "GitHub" => "https://github.com/keichan34/exfile",
-        "Docs" => "http://hexdocs.pm/exfile/"
+        "Docs" => "http://hexdocs.pm/exfile/readme.html"
       }
     ]
   end
