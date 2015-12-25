@@ -13,7 +13,9 @@ defmodule Exfile.Mixfile do
       source_url: "https://github.com/keichan34/exfile",
       docs: [
         extras: ["README.md"]
-      ]
+      ],
+      package: package,
+      description: description
     ]
   end
 
@@ -42,5 +44,24 @@ defmodule Exfile.Mixfile do
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
     ]
+  end
+
+  defp package do
+    [
+      files: ["lib", "priv", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["Keitaroh Kobayashi"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/keichan34/exfile",
+        "Docs" => "http://hexdocs.pm/exfile/"
+      }
+    ]
+  end
+
+  defp description do
+    """
+    File upload handling in Elixir and Plug. Supports pluggable processors and
+    storage backends.
+    """
   end
 end
