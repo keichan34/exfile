@@ -18,7 +18,7 @@ defmodule Exfile.Backend do
   @callback init(map) :: {:ok, backend} | {:error, atom}
 
   @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
-  @callback get(backend, String.t) :: Exfile.File.t
+  @callback get(backend, file_id) :: Exfile.File.t
 
   @callback delete(backend, file_id) :: :ok | {:error, :file.posix}
   @callback open(backend, file_id) :: {:ok, :file.io_device} | {:error, :file.posix}
@@ -53,5 +53,54 @@ defmodule Exfile.Backend do
         Path.join(backend.directory, id)
       end
     end
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.upload(backend, uploadable)
+  """
+  def upload(backend, uploadable) do
+    backend.backend_mod.upload(backend, uploadable)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.get(backend, file_id)
+  """
+  def get(backend, file_id) do
+    backend.backend_mod.get(backend, file_id)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.delete(backend, file_id)
+  """
+  def delete(backend, file_id) do
+    backend.backend_mod.delete(backend, file_id)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.open(backend, file_id)
+  """
+  def open(backend, file_id) do
+    backend.backend_mod.open(backend, file_id)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.size(backend, file_id)
+  """
+  def size(backend, file_id) do
+    backend.backend_mod.size(backend, file_id)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.exists?(backend, file_id)
+  """
+  def exists?(backend, file_id) do
+    backend.backend_mod.exists?(backend, file_id)
+  end
+
+  @doc """
+  A convenience function to call `backend.backend_mod.path(backend, file_id)
+  """
+  def path(backend, file_id) do
+    backend.backend_mod.path(backend, file_id)
   end
 end

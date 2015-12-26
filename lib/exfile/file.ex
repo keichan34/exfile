@@ -8,13 +8,12 @@ defmodule Exfile.File do
   @type file :: %Exfile.File{}
 
   def exists?(file) do
-    file.backend.backend_mod.exists?(file.backend, file.id)
+    Exfile.Backend.exists?(file.backend, file.id)
   end
 
   @spec download(file) :: {:ok, file} | {:error, :file.posix}
   def download(%Exfile.File{io: nil} = file) do
-    mod = file.backend.backend_mod
-    case mod.open(file.backend, file.id) do
+    case Exfile.Backend.open(file.backend, file.id) do
       {:ok, io} ->
         {:ok, %{file | io: io}}
       error ->

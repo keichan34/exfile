@@ -13,6 +13,8 @@ defmodule Exfile.BackendTest do
     quote do
       use ExUnit.Case, async: true
 
+      alias Exfile.Backend
+
       def backend_mod, do: unquote(backend_mod_to_test)
 
       import Exfile.BackendTest
@@ -27,16 +29,16 @@ defmodule Exfile.BackendTest do
       end
 
       test "exists? returns false for a non-existant ID", c do
-        refute backend_mod.exists?(c[:backend], "nonexistant-id")
+        refute Backend.exists?(c[:backend], "nonexistant-id")
       end
 
       test "can upload a file and get it back", c do
         string = "hello there"
         {:ok, file} = upload_string(c[:backend], string)
 
-        assert backend_mod.exists?(c[:backend], file.id)
+        assert Backend.exists?(c[:backend], file.id)
 
-        {:ok, open_file} = backend_mod.open(c[:backend], file.id)
+        {:ok, open_file} = Backend.open(c[:backend], file.id)
         assert IO.read(open_file, :all) == string
       end
 
@@ -44,17 +46,17 @@ defmodule Exfile.BackendTest do
         string = "hello there"
         {:ok, file} = upload_string(c[:backend], string)
 
-        assert backend_mod.exists?(c[:backend], file.id)
-        assert :ok = backend_mod.delete(c[:backend], file.id)
-        refute backend_mod.exists?(c[:backend], file.id)
-        assert {:error, _} = backend_mod.open(c[:backend], file.id)
+        assert Backend.exists?(c[:backend], file.id)
+        assert :ok = Backend.delete(c[:backend], file.id)
+        refute Backend.exists?(c[:backend], file.id)
+        assert {:error, _} = Backend.open(c[:backend], file.id)
       end
 
       test "returns the correct size", c do
         string = "hello there"
         {:ok, file} = upload_string(c[:backend], string)
 
-        {:ok, size_from_backend} = backend_mod.size(c[:backend], file.id)
+        {:ok, size_from_backend} = Backend.size(c[:backend], file.id)
         assert size_from_backend == String.length(string)
       end
     end
@@ -62,6 +64,6 @@ defmodule Exfile.BackendTest do
 
   def upload_string(backend, string) do
     {:ok, uploadable} = StringIO.open(string)
-    backend.backend_mod.upload(backend, uploadable)
+    Exfile.Backend.upload(backend, uploadable)
   end
 end
