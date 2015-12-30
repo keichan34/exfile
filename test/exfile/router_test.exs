@@ -47,6 +47,17 @@ defmodule Exfile.RouterTest do
     assert conn.resp_body == String.reverse(contents)
   end
 
+  test "returns correctly processed file when processor saves to a tempfile" do
+    contents = "hello there"
+    :ok = File.write(Path.expand("./tmp/cache/processtest-tempfile"), contents)
+    conn = conn(:get, "/" <> Token.build_path("cache/reverse-tempfile/processtest-tempfile/test.txt"))
+    conn = Router.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == String.reverse(contents)
+  end
+
   test "returns correctly processed file with arguments" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/process-arg-test"), contents)

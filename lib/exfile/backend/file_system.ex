@@ -13,12 +13,33 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
-  def upload(backend, uploadable) do
-    id = backend.hasher.hash(uploadable)
-    {:ok, f} = File.open path(backend, id), [:write, :binary]
-    Enum.into(IO.binstream(uploadable, @read_buffer), IO.binstream(f, @read_buffer))
-    File.close(f)
-    {:ok, %Exfile.File{backend: backend, id: id}}
+  def get(backend, id) do
+    file = super(backend, id)
+    %{file | backend_meta: %{
+      absolute_path: path(backend, id)
+    }}
+  end
+
+  def upload(backend, %Exfile.File{backend: other_backend} = other_file) when backend == other_backend do
+    id = backend.hasher.hash(other_file)
+    case File.copy(other_file.backend_meta.absolute_path, path(backend, id)) do
+      {:ok, _} ->
+        {:ok, get(backend, id)}
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def upload(backend, io) when is_pid(io) do
+    id = backend.hasher.hash(io)
+    {:ok, true} = File.open path(backend, id), [:write, :binary], fn(f) ->
+      Enum.into(
+        IO.binstream(io, @read_buffer),
+        IO.binstream(f, @read_buffer)
+      )
+      true
+    end
+    {:ok, get(backend, id)}
   end
 
   def delete(backend, id) do

@@ -2,25 +2,18 @@ defmodule Exfile.File do
   defstruct(
     id: nil,
     backend: nil,
-    io: nil
+    backend_meta: %{}
   )
 
   @type file :: %Exfile.File{}
 
+  @spec exists?(file) :: true | false
   def exists?(file) do
     Exfile.Backend.exists?(file.backend, file.id)
   end
 
-  @spec download(file) :: {:ok, file} | {:error, :file.posix}
-  def download(%Exfile.File{io: nil} = file) do
-    case Exfile.Backend.open(file.backend, file.id) do
-      {:ok, io} ->
-        {:ok, %{file | io: io}}
-      error ->
-        error
-    end
+  @spec download(file) :: {:ok, pid} | {:error, :file.posix}
+  def download(file) do
+    Exfile.Backend.open(file.backend, file.id)
   end
-
-  # Pass-through for a File struct that has an io
-  def download(file), do: {:ok, file}
 end

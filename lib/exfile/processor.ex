@@ -6,7 +6,13 @@ defmodule Exfile.Processor do
   @type file :: Exfile.File.t
 
   @doc """
-  Processes the file, returns {:ok, io} on success or {:error, reason} on failure.
+  A processor can elect to make its results available either in a temporary file
+  saved to the local filesystem or as a pid of an open IO.
   """
-  @callback call(file, [String.t, ...]) :: {:ok, file} | {:error, atom}
+  @type processed_result :: {:tempfile, Path.t} | {:io, pid}
+
+  @doc """
+  Processes the file, returns {:ok, result} on success or {:error, reason} on failure.
+  """
+  @callback call(file, [String.t, ...]) :: {:ok, processed_result} | {:error, atom}
 end

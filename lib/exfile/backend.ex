@@ -13,7 +13,7 @@ defmodule Exfile.Backend do
 
   @type backend :: map
   @type file_id :: String.t
-  @type uploadable :: :file.io_device
+  @type uploadable :: pid() | Exfile.File.t
 
   @callback init(map) :: {:ok, backend} | {:error, atom}
 

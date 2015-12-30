@@ -96,27 +96,38 @@ defmodule Exfile.Router do
   defp process_file(conn, processor, args \\ [])
   defp process_file(%{halted: true} = conn, _, _), do: conn
   defp process_file(%{assigns: %{exfile_file: file}} = conn, processor, args) do
-
     case Exfile.ProcessorRegistry.process(processor, file, args) do
-      {:ok, processed_file} ->
-        assign(conn, :exfile_file, processed_file)
+      {:ok, {:io, io}} ->
+        assign(conn, :exfile_file_io, io)
+      {:ok, {:tempfile, tempfile}} ->
+        assign(conn, :exfile_sendfile, tempfile)
       {:error, reason} ->
         send_resp(conn, 500, "processing using #{processor} failed with reason #{reason}") |> halt
     end
   end
 
   defp stream_file(%{halted: true} = conn), do: conn
-  defp stream_file(%{assigns: %{exfile_file: file}} = conn) do
+  defp stream_file(%{assigns: %{exfile_sendfile: path}} = conn) do
     filename = List.last(conn.path_info)
+    conn
+    |> put_resp_header("content-disposition", "inline; filename=#{filename}")
+    |> send_file(200, path)
+  end
+  defp stream_file(%{assigns: %{exfile_file_io: io}} = conn) do
+    filename = List.last(conn.path_info)
+    conn = conn
+    |> put_resp_header("content-disposition", "inline; filename=#{filename}")
+    |> send_chunked(200)
+
+    IO.binstream(io, @read_buffer)
+    |> Enum.into(conn)
+  end
+  defp stream_file(%{assigns: %{exfile_file: file}} = conn) do
     case Exfile.File.download(file) do
-      {:ok, file} ->
-        conn = conn
-        |> put_resp_header("content-disposition", "inline; filename=#{filename}")
-        |> send_chunked(200)
-        stream = IO.binstream(file.io, @read_buffer)
-        Enum.into stream, conn
+      {:ok, io} ->
+        assign(conn, :exfile_file_io, io) |> stream_file
       _error ->
-        send_resp(conn, 404, "file not found")
+        send_resp(conn, 404, "file not found") |> halt
     end
   end
 

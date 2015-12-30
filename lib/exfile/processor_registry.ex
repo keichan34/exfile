@@ -15,14 +15,18 @@ defmodule Exfile.ProcessorRegistry do
   end
 
   @spec process(processor_name, file, [...]) :: {:ok, file} | {:error, atom}
-  # @spec process(processor_name, [...], String.t) :: :ok | {:error, atom}
   def process(name, file, args) do
-    case GenServer.call(__MODULE__, {:processor, name}) do
+    case get_processor_module(name) do
       {:ok, module} ->
         apply(module, :call, [file, args])
       :error ->
         {:error, :no_processor}
     end
+  end
+
+  @spec get_processor_module(processor_name) :: {:ok, processor_module} | {:error, atom}
+  def get_processor_module(name) do
+    GenServer.call(__MODULE__, {:processor, name})
   end
 
   ## Callbacks
