@@ -5,6 +5,7 @@ defmodule Exfile.Backend do
 
   defstruct(
     backend_mod: nil,
+    backend_name: nil,
     directory: "",
     max_size: nil,
     hasher: nil,
@@ -31,6 +32,7 @@ defmodule Exfile.Backend do
       def init(opts) do
         {:ok, %Exfile.Backend{
           backend_mod: __MODULE__,
+          backend_name: Dict.get(opts, :name),
           directory: opts.directory,
           max_size: opts.max_size,
           hasher: opts.hasher

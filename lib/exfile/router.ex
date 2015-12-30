@@ -43,6 +43,7 @@ defmodule Exfile.Router do
     authenticate(conn)
     |> download_allowed?(backend)
     |> set_file(backend, id)
+    |> apply_format_processing
     |> stream_file
   end
 
@@ -50,6 +51,7 @@ defmodule Exfile.Router do
     authenticate(conn)
     |> download_allowed?(backend)
     |> set_file(backend, id)
+    |> apply_format_processing
     |> process_file(processor)
     |> stream_file
   end
@@ -61,6 +63,7 @@ defmodule Exfile.Router do
     authenticate(conn)
     |> download_allowed?(backend)
     |> set_file(backend, id)
+    |> apply_format_processing
     |> process_file(processor, args)
     |> stream_file
   end
@@ -91,6 +94,17 @@ defmodule Exfile.Router do
       backend: Config.backends[backend]
     }
     assign(conn, :exfile_file, file)
+  end
+
+  defp apply_format_processing(%{halted: true} = conn), do: conn
+  defp apply_format_processing(%{path_info: path_info} = conn) do
+    filename = List.last(conn.path_info)
+    ext = String.split(filename, ".") |> List.last
+    if filename == ext do
+      conn
+    else
+      process_file(conn, "convert", [ext])
+    end
   end
 
   defp process_file(conn, processor, args \\ [])

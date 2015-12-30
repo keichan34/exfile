@@ -58,6 +58,7 @@ defmodule Exfile.Config do
 
   defp instantiate_backends(backends) do
     Enum.map(backends, fn {key, [mod, argv]} ->
+      argv = Dict.put(argv, :name, key)
       {key, apply(mod, :init, [argv])}
     end) |> Enum.into(%{})
   end

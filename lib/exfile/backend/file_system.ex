@@ -42,6 +42,15 @@ defmodule Exfile.Backend.FileSystem do
     {:ok, get(backend, id)}
   end
 
+  def upload(backend, uploadable) when is_binary(uploadable) do
+    case File.open(uploadable, [:read, :binary], fn(f) -> upload(backend, f) end) do
+      {:ok, result} ->
+        result
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def delete(backend, id) do
     if exists?(backend, id) do
       File.rm(path(backend, id))
