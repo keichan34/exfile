@@ -8,7 +8,7 @@ defmodule Exfile.RouterTest do
   @opts Router.init([])
 
   test "returns 403 (forbidden) on invalid token request" do
-    conn = conn(:get, "/invalid-token/cache/1234/test.txt")
+    conn = conn(:get, "/invalid-token/cache/1234/test")
     conn = Router.call(conn, @opts)
 
     assert conn.state == :sent
@@ -17,7 +17,7 @@ defmodule Exfile.RouterTest do
   end
 
   test "returns 404 (file not found) on request to file that does not exist" do
-    conn = conn(:get, "/" <> Token.build_path("cache/1234/test.txt"))
+    conn = conn(:get, "/" <> Token.build_path("cache/1234/test"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :sent
@@ -28,7 +28,7 @@ defmodule Exfile.RouterTest do
   test "returns 200 on request to file that exists" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/exists"), contents)
-    conn = conn(:get, "/" <> Token.build_path("cache/exists/test.txt"))
+    conn = conn(:get, "/" <> Token.build_path("cache/exists/test"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :chunked
@@ -39,7 +39,7 @@ defmodule Exfile.RouterTest do
   test "returns correctly processed file" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/processtest"), contents)
-    conn = conn(:get, "/" <> Token.build_path("cache/reverse/processtest/test.txt"))
+    conn = conn(:get, "/" <> Token.build_path("cache/reverse/processtest/test"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :chunked
@@ -50,7 +50,7 @@ defmodule Exfile.RouterTest do
   test "returns correctly processed file when processor saves to a tempfile" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/processtest-tempfile"), contents)
-    conn = conn(:get, "/" <> Token.build_path("cache/reverse-tempfile/processtest-tempfile/test.txt"))
+    conn = conn(:get, "/" <> Token.build_path("cache/reverse-tempfile/processtest-tempfile/test"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :sent
@@ -61,7 +61,7 @@ defmodule Exfile.RouterTest do
   test "returns correctly processed file with arguments" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/process-arg-test"), contents)
-    conn = conn(:get, "/" <> Token.build_path("cache/truncate/5/process-arg-test/test.txt"))
+    conn = conn(:get, "/" <> Token.build_path("cache/truncate/5/process-arg-test/test"))
     conn = Router.call(conn, @opts)
 
     assert conn.state == :chunked
