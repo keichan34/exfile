@@ -17,3 +17,7 @@ defmodule Exfile.File do
     Exfile.Backend.open(file.backend, file.id)
   end
 end
+
+defimpl Phoenix.HTML.Safe, for: Exfile.File do
+  def to_iodata(%Exfile.File{id: id}), do: id
+end

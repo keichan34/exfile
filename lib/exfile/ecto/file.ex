@@ -23,6 +23,7 @@ defmodule Exfile.Ecto.File do
         :error
     end
   end
+  def cast(file_id) when is_binary(file_id), do: {:ok, file_id}
   def cast(any) do
     IO.inspect any
     :error

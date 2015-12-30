@@ -41,6 +41,7 @@ defmodule Exfile.Mixfile do
     [
       {:plug, "~> 1.0.0"},
       {:ecto, "~> 1.0"},
+      {:phoenix_html, "~> 2.3"},
       {:poison, "~> 1.5"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
