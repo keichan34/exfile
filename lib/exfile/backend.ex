@@ -49,13 +49,14 @@ defmodule Exfile.Backend do
         {:error, :notimpl}
       end
 
-      defoverridable [init: 1]
-      defoverridable [get: 2]
-      defoverridable [clear!: 1]
-
       def path(backend, id) do
         Path.join(backend.directory, id)
       end
+
+      defoverridable [init: 1]
+      defoverridable [get: 2]
+      defoverridable [clear!: 1]
+      defoverridable [path: 2]
     end
   end
 
