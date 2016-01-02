@@ -29,6 +29,8 @@ defmodule Exfile.Backend do
 
   defmacro __using__(_) do
     quote do
+      @behaviour Exfile.Backend
+
       def init(opts) do
         {:ok, %Exfile.Backend{
           backend_mod: __MODULE__,
