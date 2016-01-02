@@ -5,10 +5,6 @@ defmodule Exfile.Processor do
 
   @type file :: Exfile.File.t
 
-  @doc """
-  A processor can elect to make its results available either in a temporary file
-  saved to the local filesystem or as a pid of an open IO.
-  """
   @type processed_result :: {:tempfile, Path.t} | {:io, pid}
 
   @doc """
