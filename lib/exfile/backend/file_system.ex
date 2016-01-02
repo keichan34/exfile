@@ -30,6 +30,16 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
+  def upload(backend, %Exfile.File{} = other_file) do
+    id = backend.hasher.hash(other_file)
+    case Exfile.Backend.open(other_file) do
+      {:ok, io} ->
+        upload(backend, io)
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def upload(backend, io) when is_pid(io) do
     id = backend.hasher.hash(io)
     {:ok, true} = File.open path(backend, id), [:write, :binary], fn(f) ->

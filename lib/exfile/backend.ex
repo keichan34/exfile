@@ -12,12 +12,25 @@ defmodule Exfile.Backend do
     meta: %{}
   )
 
+  @type tempfile_path :: String.t
+
   @type backend :: map
   @type file_id :: String.t
-  @type uploadable :: pid() | Exfile.File.t
+  @type uploadable :: pid() | Exfile.File.t | tempfile_path
 
   @callback init(map) :: {:ok, backend} | {:error, atom}
 
+  @doc """
+  upload/2 must handle at least three cases of `uploadable`:
+
+  1. an IO (pid)
+  2. an %Exfile.File{}
+  3. a path to a tempfile
+
+  You may elect to implement a fourth case that handles uploading between
+  identical backends, if there is a more efficient way to implement it.
+  See Exfile.Backend.FileSystem.upload/2 for an example.
+  """
   @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
   @callback get(backend, file_id) :: Exfile.File.t
 
@@ -61,49 +74,49 @@ defmodule Exfile.Backend do
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.upload(backend, uploadable)
+  A convenience function to call `backend.backend_mod.upload(backend, uploadable)`
   """
   def upload(backend, uploadable) do
     backend.backend_mod.upload(backend, uploadable)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.get(backend, file_id)
+  A convenience function to call `backend.backend_mod.get(backend, file_id)`
   """
   def get(backend, file_id) do
     backend.backend_mod.get(backend, file_id)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.delete(backend, file_id)
+  A convenience function to call `backend.backend_mod.delete(backend, file_id)`
   """
   def delete(backend, file_id) do
     backend.backend_mod.delete(backend, file_id)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.open(backend, file_id)
+  A convenience function to call `backend.backend_mod.open(backend, file_id)`
   """
   def open(backend, file_id) do
     backend.backend_mod.open(backend, file_id)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.size(backend, file_id)
+  A convenience function to call `backend.backend_mod.size(backend, file_id)`
   """
   def size(backend, file_id) do
     backend.backend_mod.size(backend, file_id)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.exists?(backend, file_id)
+  A convenience function to call `backend.backend_mod.exists?(backend, file_id)`
   """
   def exists?(backend, file_id) do
     backend.backend_mod.exists?(backend, file_id)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.path(backend, file_id)
+  A convenience function to call `backend.backend_mod.path(backend, file_id)`
   """
   def path(backend, file_id) do
     backend.backend_mod.path(backend, file_id)
