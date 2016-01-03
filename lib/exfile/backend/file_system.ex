@@ -31,7 +31,6 @@ defmodule Exfile.Backend.FileSystem do
   end
 
   def upload(backend, %Exfile.File{} = other_file) do
-    id = backend.hasher.hash(other_file)
     case Exfile.Backend.open(other_file) do
       {:ok, io} ->
         upload(backend, io)
