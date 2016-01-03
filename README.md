@@ -12,6 +12,8 @@ filesystem-backed storage adapter.
 
 * [exfile-memory](https://github.com/keichan34/exfile-memory) -- a memory-backed
   (ETS) storage adapter. This is usually only useful as a cache.
+* [exfile-b2](https://github.com/keichan34/exfile-b2) -- storage adapter for
+  Backblaze B2.
 
 ## File Processors
 
