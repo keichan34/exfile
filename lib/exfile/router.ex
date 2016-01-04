@@ -3,11 +3,11 @@ defmodule Exfile.Router do
 
   alias Exfile.Config
 
+  require Logger
+
   plug Plug.Parsers, parsers: [:multipart]
   plug :match
   plug :dispatch
-
-  @read_buffer 2048
 
   defp authenticate(%{path_info: path_info} = conn) do
     [token | rest] = path_info
@@ -122,21 +122,21 @@ defmodule Exfile.Router do
 
   defp stream_file(%{halted: true} = conn), do: conn
   defp stream_file(%{assigns: %{exfile_sendfile: path}} = conn) do
+    Logger.debug "[exfile] sending file via direct file"
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
     |> send_file(200, path)
   end
   defp stream_file(%{assigns: %{exfile_file_io: io}} = conn) do
+    Logger.debug "[exfile] sending file via IO"
     filename = List.last(conn.path_info)
-    conn = conn
+    conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
-    |> send_chunked(200)
-
-    IO.binstream(io, @read_buffer)
-    |> Enum.into(conn)
+    |> send_resp(200, IO.binread(io, :all))
   end
   defp stream_file(%{assigns: %{exfile_file: file}} = conn) do
+    Logger.debug "[exfile] downloading file: #{inspect file}"
     case Exfile.File.download(file) do
       {:ok, io} ->
         assign(conn, :exfile_file_io, io) |> stream_file
