@@ -2,20 +2,21 @@ defmodule Exfile.Config do
   @default_config [
     allow_downloads_from: :all,
     allow_uploads_to: ["cache"],
-    secret: nil,
-    backends: %{
-      "store" => [Exfile.Backend.FileSystem, %{
-        directory: Path.expand("./priv/tmp/store"),
-        max_size: nil,
-        hasher: Exfile.Hasher.Random
-      }],
-      "cache" => [Exfile.Backend.FileSystem, %{
-        directory: Path.expand("./priv/tmp/cache"),
-        max_size: nil,
-        hasher: Exfile.Hasher.Random
-      }]
-    }
+    secret: nil
   ]
+
+  @default_backends %{
+    "store" => [Exfile.Backend.FileSystem, %{
+      directory: Path.expand("./priv/tmp/store"),
+      max_size: nil,
+      hasher: Exfile.Hasher.Random
+    }],
+    "cache" => [Exfile.Backend.FileSystem, %{
+      directory: Path.expand("./priv/tmp/cache"),
+      max_size: nil,
+      hasher: Exfile.Hasher.Random
+    }]
+  }
 
   Enum.each @default_config, fn {key, _default} ->
     def unquote(key)() do
@@ -30,30 +31,64 @@ defmodule Exfile.Config do
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 
+  def get_backend(name) do
+    GenServer.call(__MODULE__, {:get_backend, name})
+  end
+
+  def refresh_backend_config() do
+    GenServer.call(__MODULE__, :refresh_backend_config)
+  end
+
   ## Callbacks
 
   @doc false
   def init(:ok) do
-    send(self, :refresh_backend_config)
-    {:ok, %{}}
+    {:ok, %{
+      backend_definitions: %{},
+      backends: %{}
+    }}
   end
 
   def handle_info(:refresh_backend_config, state) do
-    exfile_config = Application.get_env(:exfile, Exfile, [])
-    backends = Dict.get(exfile_config, :backends)
-    backends = if backends do
-      instantiate_backends(backends)
-    else
-      instantiate_backends(@default_config[:backends])
+    {:noreply, do_refresh_backend_config(state)}
+  end
+
+  def handle_call(:refresh_backend_config, _from, state) do
+    {:reply, :ok, do_refresh_backend_config(state)}
+  end
+
+  def handle_call({:get_backend, name}, _from, state) do
+    case Map.fetch(state.backends, name) do
+      {:ok, backend} ->
+        {:reply, backend, state}
+      :error ->
+        do_initialize_backend(name, state)
     end
-    exfile_config = Dict.put(exfile_config, :backends, backends)
-    Application.put_env(:exfile, Exfile, exfile_config)
-    {:noreply, state}
   end
 
   def code_change(_, state, _) do
     send(self, :refresh_backend_config)
     {:ok, state}
+  end
+
+  defp do_initialize_backend(name, state) do
+    config_backend_defs =
+      Application.get_env(:exfile, Exfile, []) |> Dict.get(:backends, %{})
+    backend_defs = Map.merge(@default_backends, config_backend_defs)
+    case Map.fetch(backend_defs, name) do
+      {:ok, [mod, argv] = definition} ->
+        backend = apply(mod, :init, [argv])
+        state = state
+          |> put_in([:backends, name], backend)
+          |> put_in([:backend_definitions, name], definition)
+        {:reply, backend, state}
+      :error ->
+        {:reply, {:error, :backend_not_found}, state}
+    end
+  end
+
+  defp do_refresh_backend_config(state) do
+    put_in(state.backends, instantiate_backends(state.backend_definitions))
   end
 
   defp instantiate_backends(backends) do

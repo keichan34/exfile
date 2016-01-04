@@ -91,7 +91,7 @@ defmodule Exfile.Router do
   defp set_file(conn, backend, id) do
     file = %Exfile.File{
       id: id,
-      backend: Config.backends[backend]
+      backend: Config.get_backend(backend)
     }
     assign(conn, :exfile_file, file)
   end
@@ -152,7 +152,7 @@ defmodule Exfile.Router do
   end
   defp process_uploaded_file(conn, backend, %Plug.Upload{} = uploaded_file) do
     {:ok, f} = File.open(uploaded_file.path, [:read, :binary])
-    backend = Config.backends[backend]
+    backend = Config.get_backend(backend)
     {:ok, file} = Exfile.Backend.upload(backend, f)
     File.close(f)
 

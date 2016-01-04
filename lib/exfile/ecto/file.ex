@@ -37,5 +37,5 @@ defmodule Exfile.Ecto.File do
   def dump(file_id) when is_binary(file_id), do: {:ok, file_id}
   def dump(_), do: :error
 
-  defp backend, do: Exfile.Config.backends["store"]
+  defp backend, do: Exfile.Config.get_backend("store")
 end
