@@ -10,7 +10,7 @@ defmodule Exfile.BackendTest do
 
   @doc false
   defmacro __using__([backend_mod_to_test, opts]) do
-    quote do
+    quote location: :keep do
       use ExUnit.Case, async: true
 
       alias Exfile.Backend
@@ -39,7 +39,7 @@ defmodule Exfile.BackendTest do
         assert Backend.exists?(c[:backend], file.id)
 
         {:ok, open_file} = Backend.open(c[:backend], file.id)
-        assert IO.read(open_file, :all) == string
+        assert IO.binread(open_file, :all) == string
       end
 
       test "can upload a file, delete it, and not get it back", c do
@@ -63,7 +63,7 @@ defmodule Exfile.BackendTest do
   end
 
   def upload_string(backend, string) do
-    {:ok, uploadable} = StringIO.open(string)
+    {:ok, uploadable} = File.open(string, [:ram, :binary])
     Exfile.Backend.upload(backend, uploadable)
   end
 end

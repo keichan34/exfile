@@ -39,7 +39,16 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
-  def upload(backend, io) when is_pid(io) do
+  def upload(backend, uploadable) when is_binary(uploadable) do
+    case File.open(uploadable, [:read, :binary], fn(f) -> upload(backend, f) end) do
+      {:ok, result} ->
+        result
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def upload(backend, io) do
     id = backend.hasher.hash(io)
     {:ok, true} = File.open path(backend, id), [:write, :binary], fn(f) ->
       Enum.into(
@@ -51,14 +60,6 @@ defmodule Exfile.Backend.FileSystem do
     {:ok, get(backend, id)}
   end
 
-  def upload(backend, uploadable) when is_binary(uploadable) do
-    case File.open(uploadable, [:read, :binary], fn(f) -> upload(backend, f) end) do
-      {:ok, result} ->
-        result
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
 
   def delete(backend, id) do
     if exists?(backend, id) do
