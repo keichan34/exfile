@@ -77,6 +77,7 @@ defmodule Exfile.Config do
     backend_defs = Map.merge(@default_backends, config_backend_defs)
     case Map.fetch(backend_defs, name) do
       {:ok, [mod, argv] = definition} ->
+        argv = Dict.put(argv, :name, name)
         backend = apply(mod, :init, [argv])
         state = state
           |> put_in([:backends, name], backend)
