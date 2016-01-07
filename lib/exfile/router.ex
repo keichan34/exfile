@@ -93,7 +93,19 @@ defmodule Exfile.Router do
       id: id,
       backend: Config.get_backend(backend)
     }
-    assign(conn, :exfile_file, file)
+    assign(conn, :exfile_backend_file, file)
+    |> load_file
+  end
+
+  defp load_file(%{halted: true} = conn), do: conn
+  defp load_file(%{assigns: %{exfile_backend_file: file}} = conn) do
+    Logger.debug "[exfile] downloading file: #{inspect file}"
+    case Exfile.File.download(file) do
+      {:ok, io} ->
+        assign(conn, :exfile_file, {:io, io})
+      _error ->
+        send_resp(conn, 404, "file not found") |> halt
+    end
   end
 
   defp apply_format_processing(%{halted: true} = conn), do: conn
@@ -111,38 +123,27 @@ defmodule Exfile.Router do
   defp process_file(%{halted: true} = conn, _, _), do: conn
   defp process_file(%{assigns: %{exfile_file: file}} = conn, processor, args) do
     case Exfile.ProcessorRegistry.process(processor, file, args) do
-      {:ok, {:io, io}} ->
-        assign(conn, :exfile_file_io, io)
-      {:ok, {:tempfile, tempfile}} ->
-        assign(conn, :exfile_sendfile, tempfile)
+      {:ok, processed_file} ->
+        assign(conn, :exfile_file, processed_file)
       {:error, reason} ->
         send_resp(conn, 500, "processing using #{processor} failed with reason #{reason}") |> halt
     end
   end
 
   defp stream_file(%{halted: true} = conn), do: conn
-  defp stream_file(%{assigns: %{exfile_sendfile: path}} = conn) do
+  defp stream_file(%{assigns: %{exfile_file: {:tempfile, path}}} = conn) do
     Logger.debug "[exfile] sending file via direct file"
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
     |> send_file(200, path)
   end
-  defp stream_file(%{assigns: %{exfile_file_io: io}} = conn) do
+  defp stream_file(%{assigns: %{exfile_file: {:io, io}}} = conn) do
     Logger.debug "[exfile] sending file via IO"
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
     |> send_resp(200, IO.binread(io, :all))
-  end
-  defp stream_file(%{assigns: %{exfile_file: file}} = conn) do
-    Logger.debug "[exfile] downloading file: #{inspect file}"
-    case Exfile.File.download(file) do
-      {:ok, io} ->
-        assign(conn, :exfile_file_io, io) |> stream_file
-      _error ->
-        send_resp(conn, 404, "file not found") |> halt
-    end
   end
 
   defp process_uploaded_file(%{halted: true} = conn, _), do: conn

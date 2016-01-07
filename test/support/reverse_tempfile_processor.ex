@@ -1,10 +1,11 @@
 defmodule Exfile.ReverseTempfileProcessor do
-  @behaviour Exfile.Processor
+  use Exfile.Processor
 
   def call(file, []) do
-    {:ok, open_io} = Exfile.File.download(file)
     tempfile_path =
-       IO.read(open_io, :all)
+       coerce_file_to_io(file)
+    |> IO.binread(:all)
+    |> IO.chardata_to_string
     |> String.reverse
     |> into_tempfile
 
