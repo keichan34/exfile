@@ -136,6 +136,8 @@ defmodule Exfile.Router do
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
+    |> put_resp_header("expires", expires_header)
+    |> put_resp_header("cache-control", "max-age=31540000")
     |> send_file(200, path)
   end
   defp stream_file(%{assigns: %{exfile_file: {:io, io}}} = conn) do
@@ -143,6 +145,8 @@ defmodule Exfile.Router do
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
+    |> put_resp_header("expires", expires_header)
+    |> put_resp_header("cache-control", "max-age=31540000")
     |> send_resp(200, IO.binread(io, :all))
   end
 
@@ -162,5 +166,11 @@ defmodule Exfile.Router do
   end
   defp process_uploaded_file(conn, _backend, nil) do
     send_resp(conn, 400, "please upload a file") |> halt
+  end
+
+  defp expires_header do
+    {{year, _, _} = date, time} = :calendar.local_time
+    date = put_elem(date, 0, year + 1)
+    :httpd_util.rfc1123_date({date, time}) |> to_string
   end
 end
