@@ -5,6 +5,9 @@
 File upload handling in Elixir and Plug. Inspired heavily by [Refile](https://github.com/refile/refile).
 If you use Ruby, check Refile out. I like it. A lot. 👍
 
+In very heavy development. Expect things to break. I'll release 1.0 when it's
+ready and I have it in a production environment.
+
 ## Storage Adapters
 
 Exfile, like Refile, supports pluggable storage adapters. Exfile ships with a
