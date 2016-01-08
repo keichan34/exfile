@@ -1,7 +1,7 @@
 defmodule Exfile.Phoenix.Helpers do
   alias Exfile.Token
 
-  def file_path(%Exfile.File{} = file, opts \\ []) do
+  def exfile_path(%Exfile.File{} = file, opts \\ []) do
     path = [file.backend.backend_name]
 
     case Dict.fetch(opts, :processor) do
