@@ -19,7 +19,7 @@ defmodule Exfile.Tempfile do
         {:too_many_attempts, binary, pos_integer} |
         {:no_tmp, [binary]}
   def random_file(prefix) do
-    GenServer.call(plug_server, {:random, prefix})
+    GenServer.call(tempfile_server, {:random, prefix})
   end
 
   @doc """
@@ -38,7 +38,14 @@ defmodule Exfile.Tempfile do
     end
   end
 
-  defp plug_server do
+  @doc """
+  """
+  @spec register_file(binary) :: :ok
+  def register_file(path) do
+    GenServer.call(tempfile_server, {:register_file, path})
+  end
+
+  defp tempfile_server do
     Process.whereis(__MODULE__) ||
       raise "could not find process Exfile.Tempfile. Have you started the :exfile application?"
   end
@@ -69,6 +76,16 @@ defmodule Exfile.Tempfile do
     case find_tmp_dir(pid, tmps, ets) do
       {:ok, tmp, paths} ->
         {:reply, open_random_file(prefix, tmp, 0, pid, ets, paths), state}
+      {:no_tmp, _} = error ->
+        {:reply, error, state}
+    end
+  end
+
+  def handle_call({:register_file, path}, {pid, _ref}, {tmps, ets} = state) do
+    case find_tmp_dir(pid, tmps, ets) do
+      {:ok, _tmp, paths} ->
+        :ets.update_element(ets, pid, {3, [path|paths]})
+        {:reply, :ok, state}
       {:no_tmp, _} = error ->
         {:reply, error, state}
     end

@@ -26,4 +26,31 @@ defmodule Exfile.TempfileTest do
         refute File.exists?(path)
     end
   end
+
+  test "removes a random file that was moved on process death" do
+    parent = self()
+
+    {pid, ref} = spawn_monitor fn ->
+      {:ok, path} = Exfile.Tempfile.random_file("sample")
+      File.open!(path)
+      new_path = Path.join(Path.dirname(path), "new-sample")
+      File.rename(path, new_path)
+      Exfile.Tempfile.register_file(new_path)
+      send parent, {:path, new_path}
+      File.open!(new_path)
+    end
+
+    path =
+      receive do
+        {:path, path} -> path
+      after
+        1_000 -> flunk "didn't get a path"
+      end
+
+    receive do
+      {:DOWN, ^ref, :process, ^pid, :normal} ->
+        {:ok, _} = Exfile.Tempfile.random_file("sample")
+        refute File.exists?(path)
+    end
+  end
 end
