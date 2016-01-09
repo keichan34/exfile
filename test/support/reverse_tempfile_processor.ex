@@ -13,9 +13,7 @@ defmodule Exfile.ReverseTempfileProcessor do
   end
 
   defp into_tempfile(string) do
-    random = :crypto.rand_uniform(100_000, 999_999)
-    temp = Path.join(System.tmp_dir, "#{random}-reverse.txt")
-
+    temp = Exfile.Tempfile.random_file!("reverse-tempfile")
     :ok = File.write(Path.expand(temp), string)
     temp
   end

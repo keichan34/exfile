@@ -9,12 +9,12 @@ defmodule Exfile.Processor.Utilities do
   def coerce_file_to_tempfile(file, create_new_tempfile \\ false)
   def coerce_file_to_tempfile({:tempfile, t}, false), do: t
   def coerce_file_to_tempfile({:tempfile, t}, true) do
-    temp = random_tmpfile_path
+    temp = Exfile.Tempfile.random_file!("exfile-processor")
     {:ok, _} = File.copy(t, temp)
     temp
   end
   def coerce_file_to_tempfile({:io, io}, _) do
-    temp = random_tmpfile_path
+    temp = Exfile.Tempfile.random_file!("exfile-processor")
     {:ok, true} = File.open temp, [:write, :binary], fn(f) ->
       Enum.into(
         IO.binstream(io, @read_buffer),
@@ -33,10 +33,5 @@ defmodule Exfile.Processor.Utilities do
   def coerce_file_to_io({:tempfile, t}) do
     {:ok, io} = File.open(t, [:read, :binary])
     io
-  end
-
-  defp random_tmpfile_path do
-    random = :crypto.rand_uniform(100_000, 999_999)
-    Path.join(System.tmp_dir, "exfile-#{random}")
   end
 end

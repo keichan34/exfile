@@ -9,8 +9,9 @@ defmodule Exfile.Supervisor do
     import Supervisor.Spec
 
     children = [
+      worker(Exfile.Tempfile, []),
       worker(Exfile.Config, []),
-      worker(Exfile.ProcessorRegistry, [])
+      worker(Exfile.ProcessorRegistry, []),
     ]
 
     supervise(children, strategy: :one_for_one)
