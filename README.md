@@ -30,7 +30,7 @@ images, `exfile-imagemagick` is recommended.
   1. Add exfile to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:exfile, "~> 0.0.4"}]
+          [{:exfile, "~> 0.0.5"}]
         end
 
   2. Ensure exfile is started before your application:
