@@ -22,4 +22,8 @@ defmodule Exfile.Phoenix.Helpers do
 
     "/attachments/" <> (Enum.join(path, "/") |> Token.build_path)
   end
+
+  def exfile_url(conn, file, opts \\ []) do
+    Phoenix.Router.Helpers.url(nil, conn) <> exfile_path(file, opts)
+  end
 end
