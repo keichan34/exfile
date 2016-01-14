@@ -14,9 +14,9 @@ Exfile, like Refile, supports pluggable storage adapters. Exfile ships with a
 filesystem-backed storage adapter.
 
 * [exfile-memory](https://github.com/keichan34/exfile-memory) -- a memory-backed
-  (ETS) storage adapter. This is usually only useful as a cache.
+	(ETS) storage adapter. This is usually only useful as a cache.
 * [exfile-b2](https://github.com/keichan34/exfile-b2) -- storage adapter for
-  Backblaze B2.
+	Backblaze B2.
 
 ## File Processors
 
@@ -27,19 +27,23 @@ images, `exfile-imagemagick` is recommended.
 
 ## Installation
 
-  1. Add exfile to your list of dependencies in `mix.exs`:
+1. Add exfile to your list of dependencies in `mix.exs`:
 
-        def deps do
-          [{:exfile, "~> 0.0.5"}]
-        end
+	```elixir
+	def deps do
+	  [{:exfile, "~> 0.0.5"}]
+	end
+	```
 
-  2. Ensure exfile is started before your application:
+2. Ensure exfile is started before your application:
 
-        def application do
-          [applications: [:exfile]]
-        end
+	```elixir
+	def application do
+	  [applications: [:exfile]]
+	end
+	```
 
-  3. Mount the Exfile routes in your router.
+3. Mount the Exfile routes in your router.
 
 ### Phoenix
 
