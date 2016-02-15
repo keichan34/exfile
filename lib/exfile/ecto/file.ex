@@ -5,11 +5,11 @@ defmodule Exfile.Ecto.File do
 
   def cast(%Exfile.File{} = file) do
     if file.backend == backend do
-      {:ok, file.id}
+      {:ok, file}
     else
       case Exfile.Backend.upload(backend, file) do
         {:ok, new_file} ->
-          {:ok, new_file.id}
+          {:ok, new_file}
         {:error, _reason} ->
           :error
       end
@@ -18,7 +18,7 @@ defmodule Exfile.Ecto.File do
   def cast(%Plug.Upload{path: path}) do
     case Exfile.Backend.upload(backend, path) do
       {:ok, new_file} ->
-        {:ok, new_file.id}
+        {:ok, new_file}
       {:error, _reason} ->
         :error
     end
