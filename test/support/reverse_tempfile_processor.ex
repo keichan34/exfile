@@ -1,15 +1,17 @@
 defmodule Exfile.ReverseTempfileProcessor do
   use Exfile.Processor
 
+  alias Exfile.LocalFile
+
   def call(file, []) do
+    {:ok, f} = LocalFile.open(file)
     tempfile_path =
-       coerce_file_to_io(file)
-    |> IO.binread(:all)
+       IO.binread(f, :all)
     |> IO.chardata_to_string
     |> String.reverse
     |> into_tempfile
 
-    {:ok, {:tempfile, tempfile_path}}
+    {:ok, %LocalFile{path: tempfile_path}}
   end
 
   defp into_tempfile(string) do

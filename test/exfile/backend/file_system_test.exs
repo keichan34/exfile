@@ -6,12 +6,15 @@ defmodule Exfile.Backend.FileSystemTest do
     hasher: Exfile.Hasher.Random
   }]
 
+  alias Exfile.LocalFile
+
   test "uploading a FileSystem-backed file works", c do
     string = "hello there"
     {:ok, file} = upload_string(c[:backend], string)
     {:ok, file2} = Backend.upload(c[:backend], file)
 
-    {:ok, open_file} = Backend.open(c[:backend], file2.id)
+    {:ok, local_file} = Backend.open(c[:backend], file2.id)
+    {:ok, open_file} = LocalFile.open(local_file)
     assert IO.read(open_file, :all) == string
   end
 end

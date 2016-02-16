@@ -1,6 +1,7 @@
 defmodule Exfile.File do
   defstruct(
     id: nil,
+    meta: %{},
     backend: nil,
     backend_meta: %{}
   )
@@ -12,7 +13,7 @@ defmodule Exfile.File do
     Exfile.Backend.exists?(file.backend, file.id)
   end
 
-  @spec download(file) :: {:ok, pid} | {:error, :file.posix}
+  @spec download(file) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
   def download(file) do
     Exfile.Backend.open(file.backend, file.id)
   end

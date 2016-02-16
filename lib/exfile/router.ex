@@ -2,6 +2,7 @@ defmodule Exfile.Router do
   use Plug.Router
 
   alias Exfile.Config
+  alias Exfile.LocalFile
 
   require Logger
 
@@ -101,8 +102,8 @@ defmodule Exfile.Router do
   defp load_file(%{assigns: %{exfile_backend_file: file}} = conn) do
     Logger.debug "[exfile] downloading file: #{inspect file}"
     case Exfile.File.download(file) do
-      {:ok, io} ->
-        assign(conn, :exfile_file, {:io, io})
+      {:ok, local_file} ->
+        assign(conn, :exfile_local_file, local_file)
       _error ->
         send_resp(conn, 404, "file not found") |> halt
     end
@@ -121,17 +122,17 @@ defmodule Exfile.Router do
 
   defp process_file(conn, processor, args \\ [])
   defp process_file(%{halted: true} = conn, _, _), do: conn
-  defp process_file(%{assigns: %{exfile_file: file}} = conn, processor, args) do
+  defp process_file(%{assigns: %{exfile_local_file: file}} = conn, processor, args) do
     case Exfile.ProcessorRegistry.process(processor, file, args) do
       {:ok, processed_file} ->
-        assign(conn, :exfile_file, processed_file)
+        assign(conn, :exfile_local_file, processed_file)
       {:error, reason} ->
         send_resp(conn, 500, "processing using #{processor} failed with reason #{reason}") |> halt
     end
   end
 
   defp stream_file(%{halted: true} = conn), do: conn
-  defp stream_file(%{assigns: %{exfile_file: {:tempfile, path}}} = conn) do
+  defp stream_file(%{assigns: %{exfile_local_file: %LocalFile{path: path}}} = conn) when not is_nil(path) do
     Logger.debug "[exfile] sending file via direct file"
     filename = List.last(conn.path_info)
     conn
@@ -140,7 +141,7 @@ defmodule Exfile.Router do
     |> put_resp_header("cache-control", "max-age=31540000")
     |> send_file(200, path)
   end
-  defp stream_file(%{assigns: %{exfile_file: {:io, io}}} = conn) do
+  defp stream_file(%{assigns: %{exfile_local_file: %LocalFile{io: io}}} = conn) when not is_nil(io) do
     Logger.debug "[exfile] sending file via IO"
     filename = List.last(conn.path_info)
     conn

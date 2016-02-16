@@ -10,10 +10,11 @@ defmodule Exfile.BackendTest do
 
   @doc false
   defmacro __using__([backend_mod_to_test, opts]) do
-    quote location: :keep do
+    quote do
       use ExUnit.Case, async: true
 
       alias Exfile.Backend
+      alias Exfile.LocalFile
 
       def backend_mod, do: unquote(backend_mod_to_test)
 
@@ -38,7 +39,8 @@ defmodule Exfile.BackendTest do
 
         assert Backend.exists?(c[:backend], file.id)
 
-        {:ok, open_file} = Backend.open(c[:backend], file.id)
+        {:ok, local_file} = Backend.open(c[:backend], file.id)
+        {:ok, open_file} = LocalFile.open(local_file)
         assert IO.binread(open_file, :all) == string
       end
 
@@ -62,8 +64,10 @@ defmodule Exfile.BackendTest do
     end
   end
 
+  alias Exfile.LocalFile
+
   def upload_string(backend, string) do
-    {:ok, uploadable} = File.open(string, [:ram, :binary])
-    Exfile.Backend.upload(backend, uploadable)
+    {:ok, io} = File.open(string, [:ram, :binary])
+    Exfile.Backend.upload(backend, %LocalFile{io: io})
   end
 end
