@@ -21,13 +21,12 @@ defmodule Exfile.Backend do
   @callback init(map) :: {:ok, backend} | {:error, atom}
 
   @doc """
-  upload/2 must handle at least three cases of `uploadable`:
+  upload/2 must handle at least two cases of `uploadable`:
 
-  1. an IO (pid)
-  2. an %Exfile.File{}
-  3. a path to a tempfile
+  1. an %Exfile.File{}
+  2. an %Exfile.LocalFile{}
 
-  You may elect to implement a fourth case that handles uploading between
+  You may elect to implement a third case that handles uploading between
   identical backends, if there is a more efficient way to implement it.
   See Exfile.Backend.FileSystem.upload/2 for an example.
   """
@@ -35,7 +34,7 @@ defmodule Exfile.Backend do
   @callback get(backend, file_id) :: Exfile.File.t
 
   @callback delete(backend, file_id) :: :ok | {:error, :file.posix}
-  @callback open(backend, file_id) :: {:ok, :file.io_device} | {:error, :file.posix}
+  @callback open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
   @callback size(backend, file_id) :: {:ok, pos_integer} | {:error, :file.posix}
   @callback exists?(backend, file_id) :: boolean
   @callback path(backend, file_id) :: Path.t

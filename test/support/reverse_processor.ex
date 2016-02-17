@@ -1,10 +1,13 @@
 defmodule Exfile.ReverseProcessor do
   use Exfile.Processor
 
+  alias Exfile.LocalFile
+
   def call(file, []) do
-    everything = coerce_file_to_io(file) |> IO.binread(:all) |> IO.chardata_to_string
+    {:ok, f} = LocalFile.open(file)
+    everything = IO.binread(f, :all) |> IO.chardata_to_string
     reversed = String.reverse(everything)
     {:ok, reversed_io} = File.open(reversed, [:ram, :binary])
-    {:ok, {:io, reversed_io}}
+    {:ok, %LocalFile{io: reversed_io}}
   end
 end

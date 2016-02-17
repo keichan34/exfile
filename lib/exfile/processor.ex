@@ -3,7 +3,7 @@ defmodule Exfile.Processor do
   A behaviour defining the API a Processor should adhere to.
   """
 
-  @type file :: {:tempfile, Path.t} | {:io, pid}
+  @type file :: Exfile.LocalFile.t
 
   @doc """
   Processes the file, returns {:ok, result} on success or {:error, reason} on failure.

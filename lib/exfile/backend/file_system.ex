@@ -1,6 +1,8 @@
 defmodule Exfile.Backend.FileSystem do
   use Exfile.Backend
 
+  alias Exfile.LocalFile
+
   @read_buffer 2048
 
   def init(opts) do
@@ -39,6 +41,15 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
+  def upload(backend, %LocalFile{} = other_file) do
+    case LocalFile.open(other_file) do
+      {:ok, io} ->
+        upload(backend, io)
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def upload(backend, uploadable) when is_binary(uploadable) do
     case File.open(uploadable, [:read, :binary], fn(f) -> upload(backend, f) end) do
       {:ok, result} ->
@@ -70,7 +81,11 @@ defmodule Exfile.Backend.FileSystem do
   end
 
   def open(backend, id) do
-    File.open(path(backend, id), [:read, :binary])
+    if exists?(backend, id) do
+      {:ok, %LocalFile{path: path(backend, id)}}
+    else
+      {:error, :enoent}
+    end
   end
 
   def size(backend, id) do
