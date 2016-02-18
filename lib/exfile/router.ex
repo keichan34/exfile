@@ -98,8 +98,8 @@ defmodule Exfile.Router do
 
   defp load_file(%{halted: true} = conn), do: conn
   defp load_file(%{assigns: %{exfile_backend_file: file}} = conn) do
-    Logger.debug "[exfile] downloading file: #{inspect file}"
-    case Exfile.File.download(file) do
+    Logger.debug "[exfile] opening file: #{inspect file}"
+    case Exfile.File.open(file) do
       {:ok, local_file} ->
         assign(conn, :exfile_local_file, local_file)
       _error ->

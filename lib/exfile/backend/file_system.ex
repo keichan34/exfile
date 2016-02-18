@@ -33,7 +33,7 @@ defmodule Exfile.Backend.FileSystem do
   end
 
   def upload(backend, %Exfile.File{} = other_file) do
-    case Exfile.Backend.open(other_file) do
+    case Exfile.File.open(other_file) do
       {:ok, local_file} ->
         upload(backend, local_file)
       {:error, reason} ->

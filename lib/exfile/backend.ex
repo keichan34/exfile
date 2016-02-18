@@ -12,7 +12,7 @@ defmodule Exfile.Backend do
     meta: %{}
   )
 
-  @type backend :: map
+  @type backend :: %Exfile.Backend{}
   @type file_id :: String.t
   @type uploadable :: %Exfile.File{} | %Exfile.LocalFile{}
 
@@ -90,6 +90,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.upload(backend, uploadable)`
   """
+  @spec upload(backend, uploadable) :: {:ok, %Exfile.File{}} | {:error, atom}
   def upload(backend, uploadable) do
     backend.backend_mod.upload(backend, uploadable)
   end
@@ -97,6 +98,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.get(backend, file_id)`
   """
+  @spec get(backend, file_id) :: %Exfile.File{}
   def get(backend, file_id) do
     backend.backend_mod.get(backend, file_id)
   end
@@ -104,36 +106,31 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.delete(backend, file_id)`
   """
+  @spec delete(backend, file_id) :: :ok | {:error, :file.posix}
   def delete(backend, file_id) do
     backend.backend_mod.delete(backend, file_id)
-  end
-  def delete(file) do
-    delete(file.backend, file.id)
   end
 
   @doc """
   A convenience function to call `backend.backend_mod.open(backend, file_id)`
   """
+  @spec open(backend, file_id) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
   def open(backend, file_id) do
     backend.backend_mod.open(backend, file_id)
-  end
-  def open(file) do
-    open(file.backend, file.id)
   end
 
   @doc """
   A convenience function to call `backend.backend_mod.size(backend, file_id)`
   """
+  @spec size(backend, file_id) :: {:ok, pos_integer} | {:error, :file.posix}
   def size(backend, file_id) do
     backend.backend_mod.size(backend, file_id)
-  end
-  def size(file) do
-    size(file.backend, file.id)
   end
 
   @doc """
   A convenience function to call `backend.backend_mod.exists?(backend, file_id)`
   """
+  @spec exists?(backend, file_id) :: boolean
   def exists?(backend, file_id) do
     backend.backend_mod.exists?(backend, file_id)
   end
@@ -141,6 +138,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.path(backend, file_id)`
   """
+  @spec path(backend, file_id) :: Path.t
   def path(backend, file_id) do
     backend.backend_mod.path(backend, file_id)
   end
