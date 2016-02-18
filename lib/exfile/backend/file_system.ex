@@ -33,44 +33,20 @@ defmodule Exfile.Backend.FileSystem do
   end
 
   def upload(backend, %Exfile.File{} = other_file) do
-    case Exfile.Backend.open(backend, other_file) do
-      {:ok, io} ->
-        upload(backend, io)
+    case Exfile.Backend.open(other_file) do
+      {:ok, local_file} ->
+        upload(backend, local_file)
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  def upload(backend, %LocalFile{} = other_file) do
-    case LocalFile.open(other_file) do
-      {:ok, io} ->
-        upload(backend, io)
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  def upload(backend, uploadable) when is_binary(uploadable) do
-    case File.open(uploadable, [:read, :binary], fn(f) -> upload(backend, f) end) do
-      {:ok, result} ->
-        result
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  def upload(backend, io) do
-    id = backend.hasher.hash(io)
-    {:ok, true} = File.open path(backend, id), [:write, :binary], fn(f) ->
-      Enum.into(
-        IO.binstream(io, @read_buffer),
-        IO.binstream(f, @read_buffer)
-      )
-      true
-    end
+  def upload(backend, %LocalFile{} = local_file) do
+    id = backend.hasher.hash(local_file)
+    %LocalFile{path: path} = LocalFile.copy_to_tempfile(local_file)
+    File.copy!(path, path(backend, id))
     {:ok, get(backend, id)}
   end
-
 
   def delete(backend, id) do
     if exists?(backend, id) do

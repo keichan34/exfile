@@ -107,6 +107,9 @@ defmodule Exfile.Backend do
   def delete(backend, file_id) do
     backend.backend_mod.delete(backend, file_id)
   end
+  def delete(file) do
+    delete(file.backend, file.id)
+  end
 
   @doc """
   A convenience function to call `backend.backend_mod.open(backend, file_id)`
@@ -114,12 +117,18 @@ defmodule Exfile.Backend do
   def open(backend, file_id) do
     backend.backend_mod.open(backend, file_id)
   end
+  def open(file) do
+    open(file.backend, file.id)
+  end
 
   @doc """
   A convenience function to call `backend.backend_mod.size(backend, file_id)`
   """
   def size(backend, file_id) do
     backend.backend_mod.size(backend, file_id)
+  end
+  def size(file) do
+    size(file.backend, file.id)
   end
 
   @doc """

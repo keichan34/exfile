@@ -14,9 +14,4 @@ defmodule Exfile.Hasher.SHA256 do
 
     hash
   end
-
-  def hash(%Exfile.File{} = uploadable) do
-    {:ok, local_file} = Exfile.File.download(uploadable)
-    hash(local_file)
-  end
 end

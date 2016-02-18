@@ -167,10 +167,9 @@ defmodule Exfile.Router do
     process_uploaded_file(conn, backend, file)
   end
   defp process_uploaded_file(conn, backend, %Plug.Upload{} = uploaded_file) do
-    {:ok, f} = File.open(uploaded_file.path, [:read, :binary])
+    local_file = %LocalFile{path: uploaded_file.path}
     backend = Config.get_backend(backend)
-    {:ok, file} = Exfile.Backend.upload(backend, f)
-    File.close(f)
+    {:ok, file} = Exfile.Backend.upload(backend, local_file)
 
     put_resp_content_type(conn, "application/json")
     |> send_resp(200, "{\"id\":\"#{file.id}\"}")
