@@ -118,7 +118,7 @@ defmodule Exfile.Router do
   end
 
   defp apply_format_processing(%{halted: true} = conn), do: conn
-  defp apply_format_processing(%{path_info: path_info} = conn) do
+  defp apply_format_processing(conn) do
     case extract_format(conn) do
       {:ok, ext} -> process_file(conn, "convert", [ext])
       :error -> conn
