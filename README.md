@@ -34,7 +34,7 @@ images, `exfile-imagemagick` is recommended.
 
 	```elixir
 	def deps do
-	  [{:exfile, "~> 0.0.5"}]
+	  [{:exfile, "~> 0.1.0"}]
 	end
 	```
 
