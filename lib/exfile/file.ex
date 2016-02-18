@@ -17,7 +17,7 @@ defmodule Exfile.File do
     Exfile.Backend.exists?(file.backend, file.id)
   end
 
-  @spec download(file) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
+  @spec download(file) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
   def download(file) do
     Exfile.Backend.open(file.backend, file.id)
   end

@@ -31,7 +31,7 @@ defmodule Exfile.LocalFile do
     File.open(path, [:read, :binary])
   end
   def open(%LF{io: io, path: nil}) when not_nil(io) do
-    :file.position(io, :bof)
+    {:ok, _} = :file.position(io, :bof)
     {:ok, io}
   end
   def open(%LF{io: io, path: path}) when not_nil(io) and not_nil(path) do

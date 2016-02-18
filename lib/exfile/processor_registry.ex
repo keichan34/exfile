@@ -1,7 +1,7 @@
 defmodule Exfile.ProcessorRegistry do
   use GenServer
 
-  @type file :: Exfile.File.t
+  @type file :: %Exfile.File{}
   @type processor_name :: String.t
   @type processor_module :: atom
 
@@ -24,7 +24,7 @@ defmodule Exfile.ProcessorRegistry do
     end
   end
 
-  @spec get_processor_module(processor_name) :: {:ok, processor_module} | {:error, atom}
+  @spec get_processor_module(processor_name) :: {:ok, processor_module} | :error
   def get_processor_module(name) do
     GenServer.call(__MODULE__, {:processor, name})
   end

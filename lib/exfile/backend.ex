@@ -14,7 +14,7 @@ defmodule Exfile.Backend do
 
   @type backend :: map
   @type file_id :: String.t
-  @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
+  @type uploadable :: %Exfile.File{} | %Exfile.LocalFile{}
 
   @callback init(map) :: {:ok, backend} | {:error, atom}
 
@@ -28,12 +28,12 @@ defmodule Exfile.Backend do
   identical backends, if there is a more efficient way to implement it.
   See Exfile.Backend.FileSystem.upload/2 for an example.
   """
-  @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
+  @callback upload(backend, uploadable) :: {:ok, %Exfile.File{}} | {:error, atom}
 
   @doc """
   Construct an Exfile.File struct representing the given file_id.
   """
-  @callback get(backend, file_id) :: Exfile.File.t
+  @callback get(backend, file_id) :: %Exfile.File{}
 
   @doc """
   Delete a file from the backend, identified by file_id.
@@ -44,7 +44,7 @@ defmodule Exfile.Backend do
   Open a file from the backend. This function should download the file either to
   a temporary file or to memory in the Exfile.LocalFile struct.
   """
-  @callback open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
+  @callback open(backend, file_id) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
 
   @doc """
   Get the size of a file from the backend

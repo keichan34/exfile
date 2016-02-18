@@ -15,7 +15,13 @@ defmodule Exfile.Mixfile do
         extras: ["README.md"]
       ],
       package: package,
-      description: description
+      description: description,
+      dialyzer: [
+        plt_file: ".local.plt",
+        plt_add_apps: [
+          :plug
+        ]
+      ]
     ]
   end
 

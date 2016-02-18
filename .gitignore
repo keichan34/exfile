@@ -6,3 +6,5 @@ erl_crash.dump
 /priv/tmp
 /tmp
 /doc
+
+.local.plt

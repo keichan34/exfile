@@ -1,15 +1,10 @@
 defmodule Exfile.Hasher.SHA256 do
   @behaviour Exfile.Hasher
 
-  def hash(uploadable) when is_binary(uploadable) do
-    hash(File.open(uploadable, [:read, :binary]))
-  end
+  alias Exfile.LocalFile
 
-  def hash(%Exfile.File{} = uploadable) do
-    hash(Exfile.File.download(uploadable))
-  end
-
-  def hash(io) do
+  def hash(%LocalFile{} = uploadable) do
+    {:ok, io} = LocalFile.open(uploadable)
     ctx = :crypto.hash_init(:sha256)
     hash = IO.binstream(io, 2048) |> Enum.reduce(ctx, fn(buf, ctx) ->
         :crypto.hash_update(ctx, buf)
@@ -17,10 +12,11 @@ defmodule Exfile.Hasher.SHA256 do
       |> :crypto.hash_final
       |> Base.encode16(case: :lower)
 
-    # Reading from an io is side-effect-ful, so we have to rewind it before
-    # we're done here.
-    :file.position(io, :bof)
-
     hash
+  end
+
+  def hash(%Exfile.File{} = uploadable) do
+    {:ok, local_file} = Exfile.File.download(uploadable)
+    hash(local_file)
   end
 end

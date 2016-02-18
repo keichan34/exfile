@@ -6,8 +6,8 @@ defmodule Exfile.Processor.Utilities do
   Pass `true` as `create_new_tempfile` to force creation of a new tempfile.
   Returns a string containing the path to the tempfile.
   """
-  @spec coerce_file_to_tempfile(LocalFile.t) :: LocalFile.t
-  @spec coerce_file_to_tempfile(LocalFile.t, boolean) :: LocalFile.t
+  @spec coerce_file_to_tempfile(%Exfile.LocalFile{}) :: %Exfile.LocalFile{}
+  @spec coerce_file_to_tempfile(%Exfile.LocalFile{}, boolean) :: %Exfile.LocalFile{}
   def coerce_file_to_tempfile(file, create_new_tempfile \\ false)
   def coerce_file_to_tempfile(%LocalFile{path: path}, false) when not is_nil(path), do: path
   def coerce_file_to_tempfile(file, _) do
@@ -18,9 +18,9 @@ defmodule Exfile.Processor.Utilities do
   @doc """
   Opens a LocalFile. Provided for compatibility reasons.
   """
-  @spec coerce_file_to_io(LocalFile.t) :: :file.io_device
+  @spec coerce_file_to_io(%Exfile.LocalFile{}) :: :file.io_device
   def coerce_file_to_io(file) do
-    {:ok, io} = LocalFile.read(file)
+    {:ok, io} = LocalFile.open(file)
     io
   end
 end
