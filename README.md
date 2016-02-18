@@ -5,6 +5,9 @@
 File upload handling in Elixir and Plug. Inspired heavily by [Refile](https://github.com/refile/refile).
 If you use Ruby, check Refile out. I like it. A lot. 👍
 
+Requires Elixir `~> 1.2.0`. At this point, it is only tested against the most 
+recent version of Elixir.
+
 In very heavy development. Expect things to break. I'll release 1.0 when it's
 ready and I have it in a production environment.
 
