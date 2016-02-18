@@ -52,7 +52,6 @@ defmodule Exfile.Router do
     authenticate(conn)
     |> download_allowed?(backend)
     |> set_file(backend, id)
-    |> apply_format_processing
     |> process_file(processor)
     |> stream_file
   end
@@ -64,7 +63,6 @@ defmodule Exfile.Router do
     authenticate(conn)
     |> download_allowed?(backend)
     |> set_file(backend, id)
-    |> apply_format_processing
     |> process_file(processor, args)
     |> stream_file
   end
@@ -109,21 +107,33 @@ defmodule Exfile.Router do
     end
   end
 
-  defp apply_format_processing(%{halted: true} = conn), do: conn
-  defp apply_format_processing(%{path_info: path_info} = conn) do
+  defp extract_format(%{path_info: path_info}) do
     filename = List.last(path_info)
     ext = String.split(filename, ".") |> List.last
     if filename == ext do
-      conn
+      :error
     else
-      process_file(conn, "convert", [ext])
+      {:ok, ext}
+    end
+  end
+
+  defp apply_format_processing(%{halted: true} = conn), do: conn
+  defp apply_format_processing(%{path_info: path_info} = conn) do
+    case extract_format(conn) do
+      {:ok, ext} -> process_file(conn, "convert", [ext])
+      :error -> conn
     end
   end
 
   defp process_file(conn, processor, args \\ [])
   defp process_file(%{halted: true} = conn, _, _), do: conn
   defp process_file(%{assigns: %{exfile_local_file: file}} = conn, processor, args) do
-    case Exfile.ProcessorRegistry.process(processor, file, args) do
+    opts = []
+    opts = case extract_format(conn) do
+      {:ok, ext} -> Keyword.put(opts, :format, ext)
+      :error -> opts
+    end
+    case Exfile.ProcessorRegistry.process(processor, file, args, opts) do
       {:ok, processed_file} ->
         assign(conn, :exfile_local_file, processed_file)
       {:error, reason} ->

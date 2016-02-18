@@ -3,7 +3,7 @@ defmodule Exfile.ReverseProcessor do
 
   alias Exfile.LocalFile
 
-  def call(file, []) do
+  def call(file, [], _opts) do
     {:ok, f} = LocalFile.open(file)
     everything = IO.binread(f, :all) |> IO.chardata_to_string
     reversed = String.reverse(everything)

@@ -14,7 +14,7 @@ defmodule Exfile.ProcessorTest do
   end
 
   test "simple processing", %{local_file: file} do
-    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", file, [])
+    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", file, [], [])
 
     {:ok, f} = LocalFile.open(out)
     everything = IO.binread(f, :all) |> IO.chardata_to_string
@@ -22,8 +22,8 @@ defmodule Exfile.ProcessorTest do
   end
 
   test "chained processing", %{local_file: file} do
-    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", file, [])
-    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", out, [])
+    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", file, [], [])
+    {:ok, out} = Exfile.ProcessorRegistry.process("reverse", out, [], [])
 
     {:ok, f} = LocalFile.open(out)
     everything = IO.binread(f, :all) |> IO.chardata_to_string

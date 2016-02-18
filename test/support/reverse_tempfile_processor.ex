@@ -3,7 +3,7 @@ defmodule Exfile.ReverseTempfileProcessor do
 
   alias Exfile.LocalFile
 
-  def call(file, []) do
+  def call(file, [], _opts) do
     {:ok, f} = LocalFile.open(file)
     tempfile_path =
        IO.binread(f, :all)

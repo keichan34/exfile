@@ -3,7 +3,7 @@ defmodule Exfile.TruncateProcessor do
 
   alias Exfile.LocalFile
 
-  def call(file, [max_length]) do
+  def call(file, [max_length], _opts) do
     {:ok, f} = LocalFile.open(file)
     everything = IO.binread(f, :all) |> IO.chardata_to_string
     {head, _tail} = String.split_at(everything, String.to_integer(max_length))

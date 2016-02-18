@@ -14,11 +14,11 @@ defmodule Exfile.ProcessorRegistry do
     GenServer.call(__MODULE__, {:register, name, module})
   end
 
-  @spec process(processor_name, file, [...]) :: {:ok, file} | {:error, atom}
-  def process(name, file, args) do
+  @spec process(processor_name, file, [...], [...]) :: {:ok, file} | {:error, atom}
+  def process(name, file, args, opts) do
     case get_processor_module(name) do
       {:ok, module} ->
-        apply(module, :call, [file, args])
+        apply(module, :call, [file, args, opts])
       :error ->
         {:error, :no_processor}
     end

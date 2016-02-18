@@ -8,7 +8,7 @@ defmodule Exfile.Processor do
   @doc """
   Processes the file, returns {:ok, result} on success or {:error, reason} on failure.
   """
-  @callback call(file, [String.t, ...]) :: {:ok, file} | {:error, atom}
+  @callback call(file, [String.t, ...], [...]) :: {:ok, file} | {:error, atom}
 
   defmacro __using__(_) do
     quote do
