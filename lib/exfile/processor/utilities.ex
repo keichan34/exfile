@@ -1,6 +1,4 @@
 defmodule Exfile.Processor.Utilities do
-  @read_buffer 2048
-
   alias Exfile.LocalFile
 
   @doc """
