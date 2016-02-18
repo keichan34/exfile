@@ -1,6 +1,6 @@
 defmodule Exfile.Backend do
   @moduledoc """
-
+  Represents a backend that stores files.
   """
 
   defstruct(
@@ -12,11 +12,9 @@ defmodule Exfile.Backend do
     meta: %{}
   )
 
-  @type tempfile_path :: String.t
-
   @type backend :: map
   @type file_id :: String.t
-  @type uploadable :: pid() | Exfile.File.t | tempfile_path
+  @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
 
   @callback init(map) :: {:ok, backend} | {:error, atom}
 
@@ -31,11 +29,28 @@ defmodule Exfile.Backend do
   See Exfile.Backend.FileSystem.upload/2 for an example.
   """
   @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
+
+  @doc """
+  Construct an Exfile.File struct representing the given file_id.
+  """
   @callback get(backend, file_id) :: Exfile.File.t
 
+  @doc """
+  Delete a file from the backend, identified by file_id.
+  """
   @callback delete(backend, file_id) :: :ok | {:error, :file.posix}
+
+  @doc """
+  Open a file from the backend. This function should download the file either to
+  a temporary file or to memory in the Exfile.LocalFile struct.
+  """
   @callback open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
+
+  @doc """
+  Get the size of a file from the backend
+  """
   @callback size(backend, file_id) :: {:ok, pos_integer} | {:error, :file.posix}
+
   @callback exists?(backend, file_id) :: boolean
   @callback path(backend, file_id) :: Path.t
 

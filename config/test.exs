@@ -14,3 +14,5 @@ config :exfile, Exfile,
       hasher: Exfile.Hasher.Random
     }]
   }
+
+config :logger, level: :info

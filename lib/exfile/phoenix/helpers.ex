@@ -1,4 +1,22 @@
 defmodule Exfile.Phoenix.Helpers do
+  @moduledoc """
+  View helpers to use Exfile in your Phoenix app.
+
+  To use these helpers, import it in the `view` section of your `web/web.ex`
+  file.
+
+      defmodule MyApp.Web do
+        def view do
+          quote do
+            use Phoenix.View, root: "web/templates"
+            ...
+            import Exfile.Phoenix.Helpers
+          end
+        end
+      end
+
+  """
+
   alias Exfile.Token
 
   @doc """
@@ -27,8 +45,10 @@ defmodule Exfile.Phoenix.Helpers do
   end
 
   @doc """
-  Returns the absolute URL of a file with the options passed. The first argument
-  accepts any parameter that the Phoenix generated _url function takes.
+  Returns the absolute URL of a file with the options passed.
+
+  The first argument accepts any parameter that the Phoenix generated _url
+  function takes.
   """
   def exfile_url(conn_or_endpoint, file, opts \\ []) do
     Phoenix.Router.Helpers.url(nil, conn_or_endpoint) <> exfile_path(file, opts)

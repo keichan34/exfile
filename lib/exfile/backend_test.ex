@@ -4,8 +4,9 @@ defmodule Exfile.BackendTest do
 
   Usage:
 
-      use Exfile.BackendTest, [MyBackend, %{backend options}]
-
+      defmodule MyBackendTest do
+        use Exfile.BackendTest, [MyBackend, %{backend options}]
+      end
   """
 
   @doc false

@@ -111,7 +111,7 @@ defmodule Exfile.Router do
 
   defp apply_format_processing(%{halted: true} = conn), do: conn
   defp apply_format_processing(%{path_info: path_info} = conn) do
-    filename = List.last(conn.path_info)
+    filename = List.last(path_info)
     ext = String.split(filename, ".") |> List.last
     if filename == ext do
       conn

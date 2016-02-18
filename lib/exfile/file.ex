@@ -1,4 +1,8 @@
 defmodule Exfile.File do
+  @moduledoc """
+  Represents a file stored on a Backend.
+  """
+
   defstruct(
     id: nil,
     meta: %{},
