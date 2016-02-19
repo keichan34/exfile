@@ -9,6 +9,7 @@ defmodule Exfile.Backend do
     directory: "",
     max_size: nil,
     hasher: nil,
+    preprocessors: [],
     meta: %{}
   )
 
@@ -68,6 +69,13 @@ defmodule Exfile.Backend do
         }}
       end
 
+      def upload(backend, uploadable) do
+        case Exfile.ProcessorChain.apply_processors(backend.preprocessors, uploadable) do
+          {:ok, file} -> upload(backend, file)
+          error -> error
+        end
+      end
+
       def get(backend, id) do
         %Exfile.File{backend: backend, id: id}
       end
@@ -80,10 +88,7 @@ defmodule Exfile.Backend do
         Path.join(backend.directory, id)
       end
 
-      defoverridable [init: 1]
-      defoverridable [get: 2]
-      defoverridable [clear!: 1]
-      defoverridable [path: 2]
+      defoverridable [upload: 2, init: 1, get: 2, clear!: 1, path: 2]
     end
   end
 

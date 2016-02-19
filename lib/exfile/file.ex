@@ -21,7 +21,7 @@ defmodule Exfile.File do
   end
 
   @doc """
-  Opens a file. Returns an Exfile.LocalFile.
+  Opens a file.
   """
   @spec open(file) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
   def open(file) do
