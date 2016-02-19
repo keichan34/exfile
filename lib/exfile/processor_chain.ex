@@ -58,8 +58,8 @@ defmodule Exfile.ProcessorChain do
     do: do_process([{name, [], []} | other], file)
 
   defp do_process([{name, args, opts} | other], {:ok, file}) do
-    preprocess_result = ProcessorRegistry.process(name, file, args, opts)
-    do_process(other, preprocess_result)
+    process_result = ProcessorRegistry.process(name, file, args, opts)
+    do_process(other, process_result)
   end
 
   defp do_process([], file),
