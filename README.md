@@ -76,8 +76,8 @@ In `config.exs`:
 config :exfile, Exfile,
   secret: "secret string to generate the token used to authenticate requests",
   backends: %{
-    "store" => configuration for a persistent store,
-    "cache" => configuration for an ephemeral cache
+    "store" => configuration for the default persistent store
+    "cache" => configuration for an ephemeral store holding temporarily uploaded content
   }
 ```
 

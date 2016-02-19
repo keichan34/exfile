@@ -7,12 +7,12 @@ defmodule Exfile.Config do
 
   @default_backends %{
     "store" => [Exfile.Backend.FileSystem, %{
-      directory: Path.expand("./priv/tmp/store"),
+      directory: Path.expand("./tmp/store"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
     }],
     "cache" => [Exfile.Backend.FileSystem, %{
-      directory: Path.expand("./priv/tmp/cache"),
+      directory: Path.expand("./tmp/cache"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
     }]
