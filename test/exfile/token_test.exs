@@ -1,5 +1,5 @@
 defmodule Exfile.TokenTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Exfile.Token
 
   alias Exfile.Token
