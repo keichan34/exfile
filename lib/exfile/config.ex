@@ -1,10 +1,4 @@
 defmodule Exfile.Config do
-  @default_config [
-    allow_downloads_from: :all,
-    allow_uploads_to: ["cache"],
-    secret: nil
-  ]
-
   @default_backends %{
     "store" => [Exfile.Backend.FileSystem, %{
       directory: Path.expand("./tmp/store"),
@@ -18,7 +12,37 @@ defmodule Exfile.Config do
     }]
   }
 
+  @moduledoc """
+  A simple server responsible for Exfile configuration.
+
+  The default configuration:
+
+  ```
+  %{
+    "store" => [Exfile.Backend.FileSystem, %{
+      directory: Path.expand("./tmp/store"),
+      max_size: nil,
+      hasher: Exfile.Hasher.Random
+    }],
+    "cache" => [Exfile.Backend.FileSystem, %{
+      directory: Path.expand("./tmp/cache"),
+      max_size: nil,
+      hasher: Exfile.Hasher.Random
+    }]
+  }
+  ```
+  """
+
+  @default_config [
+    allow_downloads_from: :all,
+    allow_uploads_to: ["cache"],
+    secret: nil
+  ]
+
   Enum.each @default_config, fn {key, _default} ->
+    @doc """
+    Get "#{key}". Defaults to #{inspect @default_config[key]}
+    """
     def unquote(key)() do
       Application.get_env(:exfile, Exfile, [])
       |> Dict.get(unquote(key), @default_config[unquote(key)])
@@ -27,14 +51,21 @@ defmodule Exfile.Config do
 
   use GenServer
 
+  @doc false
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 
+  @doc """
+  Get the initialized backend for "name"
+  """
   def get_backend(name) do
     GenServer.call(__MODULE__, {:get_backend, name})
   end
 
+  @doc """
+  Re-initialize all registered backends
+  """
   def refresh_backend_config() do
     GenServer.call(__MODULE__, :refresh_backend_config)
   end
@@ -49,10 +80,12 @@ defmodule Exfile.Config do
     }}
   end
 
+  @doc false
   def handle_info(:refresh_backend_config, state) do
     {:noreply, do_refresh_backend_config(state)}
   end
 
+  @doc false
   def handle_call(:refresh_backend_config, _from, state) do
     {:reply, :ok, do_refresh_backend_config(state)}
   end
@@ -66,6 +99,7 @@ defmodule Exfile.Config do
     end
   end
 
+  @doc false
   def code_change(_, state, _) do
     send(self, :refresh_backend_config)
     {:ok, state}

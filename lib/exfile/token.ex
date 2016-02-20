@@ -1,4 +1,6 @@
 defmodule Exfile.Token do
+  @moduledoc false
+
   def verify_token(path, token) do
     case Base.url_decode64(token) do
       {:ok, hmac} ->

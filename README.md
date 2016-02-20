@@ -58,6 +58,10 @@ defmodule MyApp.Router do
   ...
 ```
 
+To use the `exfile_path` and `exfile_url` helpers, include the
+`Exfile.Phoenix.Helpers` module where you need it (probably in the `view`
+section of your `web/web.ex` file).
+
 ### Plug
 
 ```elixir
@@ -66,6 +70,23 @@ defmodule MyApp.Router do
 
   forward "/attachments", to: Exfile.Router
   ...
+```
+
+### Ecto Integration
+
+The following example will upload a file to the backend configured as "store".
+If you want to upload files to an alternate backend, please take a look at
+`Exfile.Ecto.File` and `Exfile.Ecto.FileTemplate` for instructions on making
+a custom `Ecto.Type` for your needs.
+
+```elixir
+defmodule MyApp.User do
+  use Ecto.Schema
+
+  schema "users" do
+    field :profile_picture, Exfile.Ecto.File
+  end
+end
 ```
 
 ## Configuration
@@ -81,4 +102,4 @@ config :exfile, Exfile,
   }
 ```
 
-See `lib/exfile/config.ex` for defaults.
+See `Exfile.Config` for defaults.
