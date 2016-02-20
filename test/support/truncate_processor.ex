@@ -1,5 +1,5 @@
 defmodule Exfile.TruncateProcessor do
-  use Exfile.Processor
+  @behaviour Exfile.Processor
 
   alias Exfile.LocalFile
 
