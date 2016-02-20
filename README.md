@@ -1,6 +1,6 @@
 # Exfile
 
-[![Build Status](https://travis-ci.org/keichan34/exfile.svg?branch=master)](https://travis-ci.org/keichan34/exfile)
+[![Build Status](https://travis-ci.org/keichan34/exfile.svg?branch=master)](https://travis-ci.org/keichan34/exfile) [![hex.pm](https://img.shields.io/hexpm/v/exfile.svg)](https://hex.pm/packages/exfile) [![hexdocs](https://img.shields.io/badge/hex-docs-brightgreen.svg)](http://hexdocs.pm/exfile/readme.html)
 
 File upload handling in Elixir and Plug. Inspired heavily by [Refile](https://github.com/refile/refile).
 If you use Ruby, check Refile out. I like it. A lot. 👍
