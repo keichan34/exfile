@@ -36,7 +36,8 @@ defmodule Exfile.Config do
   @default_config [
     allow_downloads_from: :all,
     allow_uploads_to: ["cache"],
-    secret: nil
+    secret: nil,
+    cdn_host: nil
   ]
 
   Enum.each @default_config, fn {key, _default} ->
@@ -45,7 +46,7 @@ defmodule Exfile.Config do
     """
     def unquote(key)() do
       Application.get_env(:exfile, Exfile, [])
-      |> Dict.get(unquote(key), @default_config[unquote(key)])
+      |> Keyword.get(unquote(key), @default_config[unquote(key)])
     end
   end
 

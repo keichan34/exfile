@@ -17,27 +17,29 @@ defmodule Exfile.Phoenix.Helpers do
 
   """
 
-  alias Exfile.Token
+  alias Exfile.{Config, Token}
 
   @doc """
   Returns the absolute path of a file with the options passed.
   """
+  @spec exfile_path(%Exfile.File{}) :: String.t
+  @spec exfile_path(%Exfile.File{}, [{atom, any}, ...]) :: String.t
   def exfile_path(%Exfile.File{} = file, opts \\ []) do
     path = [file.backend.backend_name]
 
-    case Dict.fetch(opts, :processor) do
+    path = case Keyword.fetch(opts, :processor) do
       {:ok, processor} ->
-        path = path ++ [processor]
-      :error -> nil
+        path ++ [processor]
+      :error -> path
     end
 
-    case Dict.fetch(opts, :processor_args) do
+    path = case Keyword.fetch(opts, :processor_args) do
       {:ok, processor_args} ->
-        path = path ++ processor_args
-      :error -> nil
+        path ++ processor_args
+      :error -> path
     end
 
-    format = Dict.get(opts, :format)
+    format = Keyword.get(opts, :format)
     format_ext = if format, do: "." <> format
     path = path ++ [file.id, "file#{format_ext}"]
 
@@ -48,9 +50,23 @@ defmodule Exfile.Phoenix.Helpers do
   Returns the absolute URL of a file with the options passed.
 
   The first argument accepts any parameter that the Phoenix generated _url
-  function takes.
+  function takes. If `cdn_host` is configured for Exfile, this first argument
+  is not necessary.
   """
-  def exfile_url(conn_or_endpoint, file, opts \\ []) do
-    Phoenix.Router.Helpers.url(nil, conn_or_endpoint) <> exfile_path(file, opts)
+  def exfile_url(base, file \\ [], opts \\ [])
+
+  def exfile_url(%Exfile.File{} = file, opts, _),
+    do: do_exfile_url(nil, file, opts)
+  def exfile_url(map, file, opts) when is_map(map),
+    do: do_exfile_url(map, file, opts)
+  def exfile_url(endpoint, file, opts) when not is_nil(endpoint) and is_atom(endpoint),
+    do: do_exfile_url(endpoint, file, opts)
+
+  defp do_exfile_url(base, %Exfile.File{} = file, opts) do
+    hostname_with_proto_for_url(base) <> exfile_path(file, opts)
+  end
+
+  defp hostname_with_proto_for_url(base) do
+    Config.cdn_host || Phoenix.Router.Helpers.url(nil, base)
   end
 end
