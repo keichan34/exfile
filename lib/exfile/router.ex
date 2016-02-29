@@ -179,8 +179,10 @@ defmodule Exfile.Router do
   end
 
   defp expires_header do
-    {{year, _, _} = date, time} = :calendar.local_time
-    date = put_elem(date, 0, year + 1)
-    :httpd_util.rfc1123_date({date, time}) |> to_string
+    seconds = :calendar.local_time |> :calendar.datetime_to_gregorian_seconds
+    (seconds + (365 * 24 * 60 * 60))
+    |> :calendar.gregorian_seconds_to_datetime
+    |> :httpd_util.rfc1123_date
+    |> to_string
   end
 end
