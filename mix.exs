@@ -4,7 +4,7 @@ defmodule Exfile.Mixfile do
   def project do
     [
       app: :exfile,
-      version: "0.1.2",
+      version: "0.1.3-dev",
       elixir: "~> 1.2.0",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -21,6 +21,9 @@ defmodule Exfile.Mixfile do
         plt_add_apps: [
           :plug
         ]
+      ],
+      aliases: [
+        "publish": [&git_tag/1, "hex.publish", "hex.docs"]
       ]
     ]
   end
@@ -72,5 +75,15 @@ defmodule Exfile.Mixfile do
     File upload handling in Elixir and Plug. Supports pluggable processors and
     storage backends.
     """
+  end
+
+  defp git_tag(_args) do
+    version_tag = case Version.parse(project[:version]) do
+      {:ok, %Version{pre: []}} ->
+        "v" <> project[:version]
+      _ ->
+        raise "Version should be a release version."
+    end
+    System.cmd "git", ["tag", "-a", version_tag, "-m", "Release #{version_tag}"]
   end
 end
