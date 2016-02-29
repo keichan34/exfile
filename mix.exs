@@ -85,5 +85,6 @@ defmodule Exfile.Mixfile do
         raise "Version should be a release version."
     end
     System.cmd "git", ["tag", "-a", version_tag, "-m", "Release #{version_tag}"]
+    System.cmd "git", ["push", "--tags"]
   end
 end
