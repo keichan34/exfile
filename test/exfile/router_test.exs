@@ -34,6 +34,15 @@ defmodule Exfile.RouterTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == contents
+
+    [expires_string | _] = Plug.Conn.get_resp_header(conn, "expires")
+    {:ok, expires} = Timex.DateFormat.parse(expires_string, "%a, %d %b %Y %H:%M:%S GMT", :strftime)
+
+    valid_date = Timex.Date.now |> Timex.Date.add(Timex.Time.to_timestamp(180, :days))
+    expired_date = Timex.Date.now |> Timex.Date.add(Timex.Time.to_timestamp(540, :days))
+
+    assert Timex.Date.compare(expires, valid_date) == 1
+    assert Timex.Date.compare(expires, expired_date) == -1
   end
 
   test "returns correctly processed file" do

@@ -37,7 +37,7 @@ defmodule Exfile.Mixfile do
       applications: [
         :logger,
         :plug,
-        :crypto
+        :crypto,
       ]
     ]
   end
@@ -53,6 +53,7 @@ defmodule Exfile.Mixfile do
       {:phoenix_html, "~> 2.3"},
       {:poison, "~> 1.5", only: :test},
       {:phoenix, "~> 1.1.4", only: :test},
+      {:timex, "~> 1.0.0", only: [:dev, :test]},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
     ]
