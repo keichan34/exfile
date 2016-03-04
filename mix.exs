@@ -38,6 +38,7 @@ defmodule Exfile.Mixfile do
         :logger,
         :plug,
         :crypto,
+        :inets
       ]
     ]
   end
