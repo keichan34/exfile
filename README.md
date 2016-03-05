@@ -62,6 +62,20 @@ To use the `exfile_path` and `exfile_url` helpers, include the
 `Exfile.Phoenix.Helpers` module where you need it (probably in the `view`
 section of your `web/web.ex` file).
 
+Phoenix uses `Plug.Parsers` with a 8 MB limit by default -- this affects Exfile
+too. To increase it, find `Plug.Parsers` in `MyApp.Endpoint` and add the `length`
+option:
+
+```elixir
+defmodule MyApp.Endpoint do
+  use Phoenix.Endpoint, otp_app: :my_app
+
+  plug Plug.Parsers,
+    ...
+    length: 25_000_000 # bytes; any value you deem necessary
+end
+```
+
 ### Plug
 
 ```elixir
