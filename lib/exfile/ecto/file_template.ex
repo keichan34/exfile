@@ -42,13 +42,15 @@ defmodule Exfile.Ecto.FileTemplate do
 
       @doc """
       Casts a recognizable value to an `%Exfile.File{}` and uploads it to the
-      backend.
+      backend if necessary.
 
-      Accepts three patterns:
+      Accepts four patterns:
 
       * Another `%Exfile.File{}`
       * An `%Exfile.LocalFile{}`
       * A `%Plug.Upload{}`
+      * A string representing the File ID of a file that is already uploaded
+        to the backend.
       """
       def cast(%Exfile.File{} = file) do
         case Exfile.Backend.upload(backend, file) do
@@ -69,6 +71,13 @@ defmodule Exfile.Ecto.FileTemplate do
             :error
         end
       end
+      def cast(file_id) when is_binary(file_id) do
+        {:ok, %Exfile.File{
+          id: file_id,
+          backend: backend
+        }}
+      end
+      def cast(_), do: :error
 
       @doc """
       Loads a file ID from the database and returns an `%Exfile.File{}` struct

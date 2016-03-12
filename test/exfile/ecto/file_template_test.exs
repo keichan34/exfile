@@ -56,6 +56,14 @@ defmodule Exfile.Ecto.FileTemplateTest do
     assert file_contents_equal(new_file, file_contents)
   end
 
+  test "casting a string binary representing an existing file works", %{loaded_file: file, file_contents: file_contents} do
+    {:ok, new_file} = cast(TestFile, file.id)
+
+    assert %Exfile.File{} = new_file
+    assert new_file.id == file.id
+    assert file_contents_equal(new_file, file_contents)
+  end
+
   test "loading a binary from the database returns a valid Exfile.File", %{loaded_file: file} do
     assert {:ok, ^file} = load(TestFile, file.id)
   end
