@@ -8,6 +8,7 @@ defmodule Exfile.Ecto.FileTemplateTest do
   import Ecto.Type
 
   def backend, do: Exfile.Config.get_backend("cache")
+  def store_backend, do: Exfile.Config.get_backend("store")
 
   def file_contents_equal(file, contents) do
     {:ok, local_file} = Exfile.File.open(file)
@@ -57,10 +58,27 @@ defmodule Exfile.Ecto.FileTemplateTest do
   end
 
   test "casting a string binary representing an existing file works", %{loaded_file: file, file_contents: file_contents} do
-    {:ok, new_file} = cast(TestFile, file.id)
+    {:ok, new_file} = cast(TestFile, "exfile://cache/" <> file.id)
 
     assert %Exfile.File{} = new_file
+    assert new_file.backend == file.backend
     assert new_file.id == file.id
+    assert file_contents_equal(new_file, file_contents)
+  end
+
+  test "casting a string binary representing an existing file on a different backend works" do
+    file_contents = "hello there"
+    {:ok, io} = File.open(file_contents, [:ram, :binary, :read])
+    local_file = %Exfile.LocalFile{io: io}
+    {:ok, file} = Exfile.Backend.upload(store_backend, local_file)
+    # rewind the io because it's been read in the upload process above
+    :file.position(io, :bof)
+
+    {:ok, new_file} = cast(TestFile, "exfile://store/" <> file.id)
+
+    assert %Exfile.File{} = new_file
+    assert new_file.backend == backend
+    refute new_file.id == file.id
     assert file_contents_equal(new_file, file_contents)
   end
 

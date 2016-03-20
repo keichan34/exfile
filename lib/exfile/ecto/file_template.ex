@@ -49,8 +49,14 @@ defmodule Exfile.Ecto.FileTemplate do
       * Another `%Exfile.File{}`
       * An `%Exfile.LocalFile{}`
       * A `%Plug.Upload{}`
-      * A string representing the File ID of a file that is already uploaded
-        to the backend.
+      * A string URI representing a file from an arbitrary backend
+
+      The string URI can be used to upload a file that is currently stored in
+      a separate backend. The format is:
+
+      ```
+      exfile://[backend name]/[file ID]
+      ```
       """
       def cast(%Exfile.File{} = file) do
         case Exfile.Backend.upload(backend, file) do
@@ -71,12 +77,20 @@ defmodule Exfile.Ecto.FileTemplate do
             :error
         end
       end
-      def cast(file_id) when is_binary(file_id) do
+      def cast(%URI{scheme: "exfile", host: unquote(backend_name), path: "/" <> file_id}) do
         {:ok, %Exfile.File{
           id: file_id,
           backend: backend
         }}
       end
+      def cast(%URI{scheme: "exfile", host: remote_backend_name, path: "/" <> file_id}) do
+        case Exfile.Config.get_backend(remote_backend_name) do
+          {:error, _} -> :error
+          backend ->
+            cast(Exfile.Backend.get(backend, file_id))
+        end
+      end
+      def cast(uri) when is_binary(uri), do: URI.parse(uri) |> cast()
       def cast(_), do: :error
 
       @doc """
