@@ -108,6 +108,7 @@ defmodule Exfile.RouterTest do
 
     body = Poison.decode!(conn.resp_body)
     assert body["id"] != nil
+    assert body["uri"] == "exfile://cache/" <> body["id"]
 
     assert File.exists?(Path.expand("./tmp/cache/#{body["id"]}")) == true
   end
