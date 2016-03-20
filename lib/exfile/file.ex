@@ -43,6 +43,14 @@ defmodule Exfile.File do
   def exists?(file) do
     Exfile.Backend.exists?(file.backend, file.id)
   end
+
+  @doc """
+  Returns the URI of this file.
+  """
+  @spec uri(t) :: String.t
+  def uri(file) do
+    "exfile://" <> file.backend.backend_name <> "/" <> file.id
+  end
 end
 
 defimpl Phoenix.HTML.Safe, for: Exfile.File do
