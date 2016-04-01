@@ -12,11 +12,13 @@ defmodule Exfile.Backend do
     meta: %{}
   )
 
-  @type backend :: %Exfile.Backend{}
+  @type t :: %Exfile.Backend{}
+
+  @type backend :: t
   @type file_id :: String.t
   @type uploadable :: %Exfile.File{} | %Exfile.LocalFile{}
 
-  @callback init(map) :: {:ok, backend} | {:error, atom}
+  @callback init(map) :: backend | {:error, atom}
 
   @doc """
   upload/2 must handle at least two cases of `uploadable`:

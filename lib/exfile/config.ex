@@ -61,7 +61,11 @@ defmodule Exfile.Config do
   Get the initialized backend for "name"
   """
   def get_backend(name) do
-    GenServer.call(__MODULE__, {:get_backend, name})
+    case GenServer.call(__MODULE__, {:get_backend, name}) do
+      {:ok, backend} -> backend
+      {:error, error} ->
+        raise ~s(The backend #{name} couldn't be initialized: #{error})
+    end
   end
 
   @doc """
@@ -94,9 +98,12 @@ defmodule Exfile.Config do
   def handle_call({:get_backend, name}, _from, state) do
     case Map.fetch(state.backends, name) do
       {:ok, backend} ->
-        {:reply, backend, state}
+        {:reply, {:ok, backend}, state}
       :error ->
-        do_initialize_backend(name, state)
+        case initialize_backend(name, state) do
+          {:error, _} = error -> {:reply, error, state}
+          {reply, state} -> {:reply, reply, state}
+        end
     end
   end
 
@@ -106,31 +113,48 @@ defmodule Exfile.Config do
     {:ok, state}
   end
 
-  defp do_initialize_backend(name, state) do
+  defp initialize_backend(name, state) do
+    with  {:ok, definition} <- fetch_backend_definition(name),
+          {:ok, backend} <- init_backend_from_definition(name, definition) do
+            state = state
+            |> put_in([:backends, name], backend)
+            |> put_in([:backend_definitions, name], definition)
+            {{:ok, backend}, state}
+          end
+  end
+
+  defp fetch_backend_definition(name) do
     config_backend_defs =
-      Application.get_env(:exfile, Exfile, []) |> Dict.get(:backends, %{})
+      Application.get_env(:exfile, Exfile, []) |> Keyword.get(:backends, %{})
     backend_defs = Map.merge(@default_backends, config_backend_defs)
     case Map.fetch(backend_defs, name) do
-      {:ok, [mod, argv] = definition} ->
-        argv = Dict.put(argv, :name, name)
-        backend = apply(mod, :init, [argv])
-        state = state
-          |> put_in([:backends, name], backend)
-          |> put_in([:backend_definitions, name], definition)
-        {:reply, backend, state}
-      :error ->
-        {:reply, {:error, :backend_not_found}, state}
+      {:ok, definition} -> {:ok, definition}
+      :error -> {:error, :backend_not_found}
+    end
+  end
+
+  defp init_backend_from_definition(name, [mod, argv]) do
+    argv = Map.put(argv, :name, name)
+    case apply(mod, :init, [argv]) do
+      {:error, _} = error -> error
+      backend -> {:ok, backend}
     end
   end
 
   defp do_refresh_backend_config(state) do
-    put_in(state.backends, instantiate_backends(state.backend_definitions))
+    put_in(state.backends, init_backends_from_definitions(state.backend_definitions))
   end
 
-  defp instantiate_backends(backends) do
-    Enum.map(backends, fn {key, [mod, argv]} ->
-      argv = Dict.put(argv, :name, key)
-      {key, apply(mod, :init, [argv])}
-    end) |> Enum.into(%{})
+  defp init_backends_from_definitions(definitions) do
+    definitions
+    |> Enum.map(fn({name, definition}) ->
+        backend = init_backend_from_definition(name, definition)
+        {name, backend}
+      end)
+    |> Enum.reject(fn
+        ({_, {:error, _}}) -> true
+        _ -> false
+      end)
+    |> Enum.into(%{})
   end
 end
