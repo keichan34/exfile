@@ -35,6 +35,9 @@ defmodule Exfile.RouterTest do
     assert conn.status == 200
     assert conn.resp_body == contents
 
+    [content_type_string | _] = Plug.Conn.get_resp_header(conn, "content-type")
+    assert content_type_string == "text/plain"
+
     [expires_string | _] = Plug.Conn.get_resp_header(conn, "expires")
     {:ok, expires} = Timex.DateFormat.parse(expires_string, "%a, %d %b %Y %H:%M:%S GMT", :strftime)
 
@@ -54,6 +57,9 @@ defmodule Exfile.RouterTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == String.reverse(contents)
+
+    [content_type_string | _] = Plug.Conn.get_resp_header(conn, "content-type")
+    assert content_type_string == "text/plain"
   end
 
   test "returns correctly processed file when processor saves to a tempfile" do
@@ -65,6 +71,9 @@ defmodule Exfile.RouterTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == String.reverse(contents)
+
+    [content_type_string | _] = Plug.Conn.get_resp_header(conn, "content-type")
+    assert content_type_string == "text/plain"
   end
 
   test "returns correctly processed file with arguments" do
@@ -76,6 +85,9 @@ defmodule Exfile.RouterTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "hello"
+
+    [content_type_string | _] = Plug.Conn.get_resp_header(conn, "content-type")
+    assert content_type_string == "text/plain"
   end
 
   test "returns 200 on an OPTIONS request to /:backend" do
@@ -86,7 +98,7 @@ defmodule Exfile.RouterTest do
     assert conn.status == 200
   end
 
-  test "returs 404 (file not found) on a upload to a disallowed backend" do
+  test "returns 404 (file not found) on a upload to a disallowed backend" do
     conn = conn(:post, "/store")
     conn = Router.call(conn, @opts)
 

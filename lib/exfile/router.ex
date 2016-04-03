@@ -143,22 +143,31 @@ defmodule Exfile.Router do
 
   defp stream_file(%{halted: true} = conn), do: conn
   defp stream_file(%{assigns: %{exfile_local_file: %LocalFile{path: path}}} = conn) when not is_nil(path) do
-    Logger.debug "[exfile] sending file via direct file"
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
     |> put_resp_header("expires", expires_header)
     |> put_resp_header("cache-control", "max-age=31540000")
+    |> set_content_type(path)
     |> send_file(200, path)
   end
   defp stream_file(%{assigns: %{exfile_local_file: %LocalFile{io: io}}} = conn) when not is_nil(io) do
-    Logger.debug "[exfile] sending file via IO"
-    filename = List.last(conn.path_info)
+    data = IO.binread(io, :all)
+    file = Exfile.Tempfile.random_file!("send")
+    File.write!(file, data, [:write])
+
     conn
-    |> put_resp_header("content-disposition", "inline; filename=#{filename}")
-    |> put_resp_header("expires", expires_header)
-    |> put_resp_header("cache-control", "max-age=31540000")
-    |> send_resp(200, IO.binread(io, :all))
+    |> assign(:exfile_local_file, %LocalFile{path: file})
+    |> stream_file
+  end
+
+  defp set_content_type(conn, location) do
+    case Exfile.Identify.mime_type(location) do
+      {:ok, mime_type} ->
+        put_resp_header(conn, "content-type", mime_type)
+      :error ->
+        conn
+    end
   end
 
   defp process_uploaded_file(%{halted: true} = conn, _), do: conn
