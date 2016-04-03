@@ -40,28 +40,45 @@ defmodule Exfile.Router do
     end
   end
 
-  get "/:_token/:backend/:id/:_filename" do
+  defp check_or_set_etag(%{halted: true} = conn, _), do: conn
+  defp check_or_set_etag(conn, token) do
+    remote_etag = case get_req_header(conn, "if-none-match") do
+      [etag | _] -> etag
+      _ -> nil
+    end
+    conn = put_resp_header(conn, "etag", token)
+    if token == remote_etag do
+      send_resp(conn, 304, "") |> halt
+    else
+      conn
+    end
+  end
+
+  get "/:token/:backend/:id/:_filename" do
     authenticate(conn)
     |> download_allowed?(backend)
+    |> check_or_set_etag(token)
     |> set_file(backend, id)
     |> apply_format_processing
     |> stream_file
   end
 
-  get "/:_token/:backend/:processor/:id/:_filename" do
+  get "/:token/:backend/:processor/:id/:_filename" do
     authenticate(conn)
     |> download_allowed?(backend)
+    |> check_or_set_etag(token)
     |> set_file(backend, id)
     |> process_file(processor)
     |> stream_file
   end
 
-  get "/:_token/:backend/:processor/*unparsed_args" when length(unparsed_args) > 2 do
+  get "/:token/:backend/:processor/*unparsed_args" when length(unparsed_args) > 2 do
     [id, _filename] = Enum.slice(unparsed_args, -2, 2)
     args = Enum.slice(unparsed_args, 0..-3)
 
     authenticate(conn)
     |> download_allowed?(backend)
+    |> check_or_set_etag(token)
     |> set_file(backend, id)
     |> process_file(processor, args)
     |> stream_file

@@ -48,6 +48,18 @@ defmodule Exfile.RouterTest do
     assert Timex.Date.compare(expires, expired_date) == -1
   end
 
+  test "returns 304 (not modified) on request with valid if-none-match" do
+    path = "cache/test/test"
+    token = Token.generate_token(path)
+    path = Path.join(token, path)
+    conn = conn(:get, "/" <> path, "") |> put_req_header("if-none-match", token)
+    conn = Router.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 304
+    assert conn.resp_body == ""
+  end
+
   test "returns correctly processed file" do
     contents = "hello there"
     :ok = File.write(Path.expand("./tmp/cache/processtest"), contents)
