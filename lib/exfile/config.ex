@@ -151,9 +151,12 @@ defmodule Exfile.Config do
         backend = init_backend_from_definition(name, definition)
         {name, backend}
       end)
-    |> Enum.reject(fn
-        ({_, {:error, _}}) -> true
+    |> Enum.filter(fn
+        ({_, {:ok, _}}) -> true
         _ -> false
+      end)
+    |> Enum.map(fn({name, {:ok, backend}}) ->
+        {name, backend}
       end)
     |> Enum.into(%{})
   end
