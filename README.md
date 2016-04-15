@@ -27,6 +27,7 @@ Exfile supports pluggable file processors / filters. If you're working with
 images, `exfile-imagemagick` is recommended.
 
 * [exfile-imagemagick](https://github.com/keichan34/exfile-imagemagick)
+* [exfile-encryption](https://github.com/keichan34/exfile-encryption)
 
 ## Installation
 
@@ -34,7 +35,7 @@ images, `exfile-imagemagick` is recommended.
 
 	```elixir
 	def deps do
-	  [{:exfile, "~> 0.2.2"}]
+	  [{:exfile, "~> 0.2.3"}]
 	end
 	```
 
