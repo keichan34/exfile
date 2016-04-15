@@ -9,6 +9,8 @@ defmodule Exfile.Backend do
     directory: "",
     max_size: nil,
     hasher: nil,
+    preprocessors: [],
+    postprocessors: [],
     meta: %{}
   )
 
@@ -66,7 +68,9 @@ defmodule Exfile.Backend do
           backend_name: Dict.get(opts, :name),
           directory: Dict.get(opts, :directory, ""),
           max_size: Dict.get(opts, :max_size, nil),
-          hasher: Dict.get(opts, :hasher, Exfile.Hasher.Random)
+          hasher: Dict.get(opts, :hasher, Exfile.Hasher.Random),
+          preprocessors: Dict.get(opts, :preprocessors, []),
+          postprocessors: Dict.get(opts, :postprocessors, [])
         }}
       end
 
@@ -86,16 +90,23 @@ defmodule Exfile.Backend do
     end
   end
 
+  alias Exfile.ProcessorChain
+
   @doc """
-  A convenience function to call `backend.backend_mod.upload(backend, uploadable)`
+  Uploads a file to the given backend, applying preprocessors if configured.
   """
   @spec upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
   def upload(backend, uploadable) do
-    backend.backend_mod.upload(backend, uploadable)
+    preprocessors = backend.preprocessors
+    with  {:ok, process_result} <- ProcessorChain.apply_processors(preprocessors, uploadable),
+          do: backend.backend_mod.upload(backend, process_result)
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.get(backend, file_id)`
+  Get the `Exfile.File` struct representing a file on the given backend.
+
+  This function does not open the file or download it. Use open/2 or
+  Exfile.File.open/1 to open the file.
   """
   @spec get(backend, file_id) :: Exfile.File.t
   def get(backend, file_id) do
@@ -103,7 +114,7 @@ defmodule Exfile.Backend do
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.delete(backend, file_id)`
+  Deletes a file from the given backend by the file ID.
   """
   @spec delete(backend, file_id) :: :ok | {:error, :file.posix}
   def delete(backend, file_id) do
@@ -111,11 +122,13 @@ defmodule Exfile.Backend do
   end
 
   @doc """
-  A convenience function to call `backend.backend_mod.open(backend, file_id)`
+  Opens a file on the given backend, applying postprocessors if configured.
   """
   @spec open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
   def open(backend, file_id) do
-    backend.backend_mod.open(backend, file_id)
+    postprocessors = backend.postprocessors
+    with  {:ok, local_file}     <- backend.backend_mod.open(backend, file_id),
+          do: ProcessorChain.apply_processors(postprocessors, local_file)
   end
 
   @doc """
