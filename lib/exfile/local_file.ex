@@ -17,6 +17,8 @@ defmodule Exfile.LocalFile do
     meta: %{}
   )
 
+  @type t :: %LF{path: String.t, io: :file.io_device, meta: map}
+
   @read_buffer 2048
 
   def put_meta(file, key, value) do

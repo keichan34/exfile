@@ -16,7 +16,7 @@ defmodule Exfile.Backend do
 
   @type backend :: t
   @type file_id :: String.t
-  @type uploadable :: %Exfile.File{} | %Exfile.LocalFile{}
+  @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
 
   @callback init(map) :: backend | {:error, atom}
 
@@ -30,12 +30,12 @@ defmodule Exfile.Backend do
   identical backends, if there is a more efficient way to implement it.
   See Exfile.Backend.FileSystem.upload/2 for an example.
   """
-  @callback upload(backend, uploadable) :: {:ok, %Exfile.File{}} | {:error, atom}
+  @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
 
   @doc """
   Construct an Exfile.File struct representing the given file_id.
   """
-  @callback get(backend, file_id) :: %Exfile.File{}
+  @callback get(backend, file_id) :: Exfile.File.t
 
   @doc """
   Delete a file from the backend, identified by file_id.
@@ -46,7 +46,7 @@ defmodule Exfile.Backend do
   Open a file from the backend. This function should download the file either to
   a temporary file or to memory in the Exfile.LocalFile struct.
   """
-  @callback open(backend, file_id) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
+  @callback open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
 
   @doc """
   Get the size of a file from the backend
@@ -89,7 +89,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.upload(backend, uploadable)`
   """
-  @spec upload(backend, uploadable) :: {:ok, %Exfile.File{}} | {:error, atom}
+  @spec upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
   def upload(backend, uploadable) do
     backend.backend_mod.upload(backend, uploadable)
   end
@@ -97,7 +97,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.get(backend, file_id)`
   """
-  @spec get(backend, file_id) :: %Exfile.File{}
+  @spec get(backend, file_id) :: Exfile.File.t
   def get(backend, file_id) do
     backend.backend_mod.get(backend, file_id)
   end
@@ -113,7 +113,7 @@ defmodule Exfile.Backend do
   @doc """
   A convenience function to call `backend.backend_mod.open(backend, file_id)`
   """
-  @spec open(backend, file_id) :: {:ok, %Exfile.LocalFile{}} | {:error, :file.posix}
+  @spec open(backend, file_id) :: {:ok, Exfile.LocalFile.t} | {:error, :file.posix}
   def open(backend, file_id) do
     backend.backend_mod.open(backend, file_id)
   end
