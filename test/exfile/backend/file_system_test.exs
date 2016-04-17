@@ -1,10 +1,8 @@
 defmodule Exfile.Backend.FileSystemTest do
-  use Exfile.BackendTest, [
-    Exfile.Backend.FileSystem, %{
-    directory: Path.expand("./tmp/test_filesystem"),
-    max_size: nil,
-    hasher: Exfile.Hasher.Random
-  }]
+  use Exfile.BackendTest, {
+    Exfile.Backend.FileSystem,
+    directory: Path.expand("./tmp/test_filesystem")
+  }
 
   alias Exfile.LocalFile
 
@@ -19,11 +17,9 @@ defmodule Exfile.Backend.FileSystemTest do
   end
 
   test "uploading a different backend file works", c do
-    backend2 = backend_mod.init(%{
-      directory: Path.expand("./tmp/test_filesystem_2"),
-      max_size: nil,
-      hasher: Exfile.Hasher.Random
-    })
+    backend2 = backend_mod.init(
+      directory: Path.expand("./tmp/test_filesystem_2")
+    )
 
     string = "hello there 2"
 

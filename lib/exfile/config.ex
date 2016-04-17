@@ -1,15 +1,15 @@
 defmodule Exfile.Config do
   @default_backends %{
-    "store" => [Exfile.Backend.FileSystem, %{
+    "store" => {Exfile.Backend.FileSystem,
       directory: Path.expand("./tmp/store"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
-    }],
-    "cache" => [Exfile.Backend.FileSystem, %{
+    },
+    "cache" => {Exfile.Backend.FileSystem,
       directory: Path.expand("./tmp/cache"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
-    }]
+    }
   }
 
   @moduledoc """
@@ -19,16 +19,16 @@ defmodule Exfile.Config do
 
   ```
   %{
-    "store" => [Exfile.Backend.FileSystem, %{
+    "store" => {Exfile.Backend.FileSystem,
       directory: Path.expand("./tmp/store"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
-    }],
-    "cache" => [Exfile.Backend.FileSystem, %{
+    },
+    "cache" => {Exfile.Backend.FileSystem,
       directory: Path.expand("./tmp/cache"),
       max_size: nil,
       hasher: Exfile.Hasher.Random
-    }]
+    }
   }
   ```
   """
@@ -133,8 +133,8 @@ defmodule Exfile.Config do
     end
   end
 
-  defp init_backend_from_definition(name, [mod, argv]) do
-    argv = Map.put(argv, :name, name)
+  defp init_backend_from_definition(name, {mod, argv}) do
+    argv = Keyword.put(argv, :name, name)
     case apply(mod, :init, [argv]) do
       {:error, _} = error -> error
       backend -> {:ok, backend}

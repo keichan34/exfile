@@ -7,20 +7,29 @@ defmodule Exfile.Backend do
     backend_mod: nil,
     backend_name: nil,
     directory: "",
-    max_size: nil,
-    hasher: nil,
+    max_size: -1,
+    hasher: Exfile.Hasher.Random,
     preprocessors: [],
     postprocessors: [],
     meta: %{}
   )
 
-  @type t :: %Exfile.Backend{}
+  @type t :: %Exfile.Backend{
+    backend_mod: atom,
+    backend_name: String.t,
+    directory: String.t,
+    max_size: integer,
+    hasher: atom,
+    preprocessors: [Exfile.ProcessorChain.definition, ...],
+    postprocessors: [Exfile.ProcessorChain.definition, ...],
+    meta: map
+  }
 
   @type backend :: t
   @type file_id :: String.t
   @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
 
-  @callback init(map) :: backend | {:error, atom}
+  @callback init([name: String.t]) :: backend | {:error, atom}
 
   @doc """
   upload/2 must handle at least two cases of `uploadable`:
@@ -63,15 +72,15 @@ defmodule Exfile.Backend do
       @behaviour Exfile.Backend
 
       def init(opts) do
-        {:ok, %Exfile.Backend{
+        backend = %Exfile.Backend{
           backend_mod: __MODULE__,
-          backend_name: Dict.get(opts, :name),
-          directory: Dict.get(opts, :directory, ""),
-          max_size: Dict.get(opts, :max_size, nil),
-          hasher: Dict.get(opts, :hasher, Exfile.Hasher.Random),
-          preprocessors: Dict.get(opts, :preprocessors, []),
-          postprocessors: Dict.get(opts, :postprocessors, [])
-        }}
+          backend_name: Keyword.get(opts, :name)
+        }
+        {merge_opts, _} = Keyword.split(opts,
+          ~w(directory max_size hasher preprocessors postprocessors)a)
+        backend = Map.merge(backend, Enum.into(merge_opts, %{}))
+
+        {:ok, backend}
       end
 
       def get(backend, id) do

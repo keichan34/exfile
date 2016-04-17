@@ -5,12 +5,12 @@ defmodule Exfile.BackendTest do
   Usage:
 
       defmodule MyBackendTest do
-        use Exfile.BackendTest, [MyBackend, %{backend options}]
+        use Exfile.BackendTest, {MyBackend, keyword list of options sent to backend}]
       end
   """
 
   @doc false
-  defmacro __using__([backend_mod_to_test, opts]) do
+  defmacro __using__({backend_mod_to_test, opts}) do
     quote do
       use ExUnit.Case, async: true
 
