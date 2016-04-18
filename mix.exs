@@ -50,8 +50,8 @@ defmodule Exfile.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.0.0"},
-      {:ecto, "~> 1.0"},
-      {:phoenix_html, "~> 2.3"},
+      {:ecto, "~> 1.0", optional: true},
+      {:phoenix_html, "~> 2.3", optional: true},
       {:poison, "~> 1.5", only: :test},
       {:phoenix, "~> 1.1.4", only: :test},
       {:timex, "~> 1.0.0", only: [:dev, :test]},
