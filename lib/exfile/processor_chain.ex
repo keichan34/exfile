@@ -35,7 +35,7 @@ defmodule Exfile.ProcessorChain do
     {:ok, uploadable}
   end
 
-  @spec apply_processors([definition, ...], uploadable) :: {:ok, %Exfile.LocalFile{}} | {:error, atom}
+  @spec apply_processors([definition, ...], uploadable) :: {:ok, LocalFile.t} | {:error, atom}
   def apply_processors(processors, uploadable) do
     local_file = coerce_to_local_file(uploadable)
     do_process(processors, {:ok, local_file})

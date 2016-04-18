@@ -5,8 +5,7 @@ defmodule Exfile.Hasher do
   The File ID will be used as the filename on the backend storage.
   """
 
-  @type file_id :: String.t
-  @type uploadable :: %Exfile.LocalFile{}
+  @type uploadable :: Exfile.LocalFile.t
 
-  @callback hash(uploadable) :: file_id
+  @callback hash(uploadable) :: Exfile.File.file_id
 end

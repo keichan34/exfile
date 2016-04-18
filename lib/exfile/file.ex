@@ -10,7 +10,10 @@ defmodule Exfile.File do
     backend_meta: %{}
   )
 
-  @type t :: %Exfile.File{id: binary, meta: map, backend: map, backend_meta: map}
+  @type file_id :: String.t
+
+  @type t :: %Exfile.File{
+    id: file_id, meta: map, backend: map, backend_meta: map}
 
   @doc """
   Deletes a file.

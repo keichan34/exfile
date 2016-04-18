@@ -26,7 +26,7 @@ defmodule Exfile.Backend do
   }
 
   @type backend :: t
-  @type file_id :: String.t
+  @type file_id :: Exfile.File.file_id
   @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
 
   @callback init([name: String.t]) :: backend | {:error, atom}

@@ -19,14 +19,17 @@ defmodule Exfile.Phoenix.Helpers do
 
   """
 
-  alias Exfile.{Config, Token}
+  alias Exfile.{Config, Token, File}
+
+  @type exfile_path_opts ::
+    [processor: String.t, processor_args: [String.t], format: String.t]
 
   @doc """
   Returns the absolute path of a file with the options passed.
   """
-  @spec exfile_path(%Exfile.File{}) :: String.t
-  @spec exfile_path(%Exfile.File{}, [{atom, any}, ...]) :: String.t
-  def exfile_path(%Exfile.File{} = file, opts \\ []) do
+  @spec exfile_path(File.t) :: String.t
+  @spec exfile_path(File.t, exfile_path_opts) :: String.t
+  def exfile_path(%File{} = file, opts \\ []) do
     path = [file.backend.backend_name]
 
     path = case Keyword.fetch(opts, :processor) do
@@ -55,16 +58,22 @@ defmodule Exfile.Phoenix.Helpers do
   function takes. If `cdn_host` is configured for Exfile, this first argument
   is not necessary.
   """
+  @spec exfile_url(File.t) :: String.t
+  @spec exfile_url(File.t, exfile_path_opts) :: String.t
+  @spec exfile_url(File.t, exfile_path_opts, []) :: String.t
+  @spec exfile_url(Plug.Conn.t | Phoenix.Socket.t | URI.t, File.t, exfile_path_opts) :: String.t
+  @spec exfile_url(atom, File.t, exfile_path_opts) :: String.t
+
   def exfile_url(base, file \\ [], opts \\ [])
 
-  def exfile_url(%Exfile.File{} = file, opts, _),
+  def exfile_url(%File{} = file, opts, _),
     do: do_exfile_url(nil, file, opts)
-  def exfile_url(map, file, opts) when is_map(map),
-    do: do_exfile_url(map, file, opts)
+  def exfile_url(%{__struct__: mod} = other, file, opts) when mod in [Plug.Conn, Phoenix.Socket, URI],
+    do: do_exfile_url(other, file, opts)
   def exfile_url(endpoint, file, opts) when not is_nil(endpoint) and is_atom(endpoint),
     do: do_exfile_url(endpoint, file, opts)
 
-  defp do_exfile_url(base, %Exfile.File{} = file, opts) do
+  defp do_exfile_url(base, %File{} = file, opts) do
     hostname_with_proto_for_url(base) <> exfile_path(file, opts)
   end
 

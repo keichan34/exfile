@@ -1,4 +1,12 @@
 defmodule Exfile.Identify do
+  @moduledoc """
+  Identifies the mime type of a local file
+  """
+
+  @doc """
+  Identifies the mime type of a local file
+  """
+  @spec mime_type(Path.t) :: {:ok, String.t} | :error
   def mime_type(path) do
     case System.cmd(file_cmd, ["--mime-type", "-b", path]) do
       {out, 0} ->

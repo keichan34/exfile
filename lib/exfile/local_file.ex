@@ -1,6 +1,6 @@
 defmodule Exfile.LocalFile do
   @moduledoc """
-  Represents a file either on the local filesystem or in memory.
+  Represents a file on the local filesystem.
   """
 
   alias Exfile.LocalFile, as: LF
@@ -21,14 +21,18 @@ defmodule Exfile.LocalFile do
 
   @read_buffer 2048
 
+  @spec put_meta(t, atom, any) :: t
   def put_meta(file, key, value) do
     put_in(file.meta[key], value)
   end
 
   @doc """
-  Opens a LocalFile into an IO pid. If the LocalFile is already IO-based, the
-  IO will be rewound to the beginning of the file.
+  Opens a LocalFile into an IO pid.
+
+  If the LocalFile is already IO-based, the IO will be rewound to the beginning
+  of the file.
   """
+  @spec open(t) :: {:ok, :file.io_device} | {:error, :file.posix} | no_return
   def open(%LF{io: nil, path: path}) when not_nil(path) do
     File.open(path, [:read, :binary])
   end
@@ -44,10 +48,12 @@ defmodule Exfile.LocalFile do
   end
 
   @doc """
-  Copies the LocalFile to a new file-based LocalFile. Once the calling pid dies,
-  the file will be automatically removed from the filesystem (see
-  Exfile.Tempfile for more details).
+  Copies the LocalFile to a new file-based LocalFile.
+
+  Once the calling pid dies, the file will be automatically removed from the
+  filesystem (see Exfile.Tempfile for more details).
   """
+  @spec copy_to_tempfile(t) :: t | no_return
   def copy_to_tempfile(%LF{path: path, meta: meta}) when not_nil(path) do
     temp = Exfile.Tempfile.random_file!("exfile-file")
     {:ok, _} = File.copy(path, temp)

@@ -19,7 +19,11 @@ defmodule Exfile.Mixfile do
       dialyzer: [
         plt_file: ".local.plt",
         plt_add_apps: [
-          :plug
+          :plug,
+          :ecto,
+          :phoenix,
+          :phoenix_html,
+          :inets
         ]
       ],
       aliases: [
@@ -51,9 +55,9 @@ defmodule Exfile.Mixfile do
     [
       {:plug, "~> 1.0.0"},
       {:ecto, "~> 1.0", optional: true},
+      {:phoenix, "~> 1.1.4", optional: true},
       {:phoenix_html, "~> 2.3", optional: true},
-      {:poison, "~> 1.5", only: :test},
-      {:phoenix, "~> 1.1.4", only: :test},
+      {:poison, "~> 1.5 or ~> 2.0", optional: true},
       {:timex, "~> 1.0.0", only: [:dev, :test]},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
