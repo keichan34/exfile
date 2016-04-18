@@ -108,8 +108,27 @@ defmodule Exfile.Backend do
   def upload(backend, uploadable) do
     preprocessors = backend.preprocessors
     with  {:ok, process_result} <- ProcessorChain.apply_processors(preprocessors, uploadable),
+          :ok <- verify_file_size(backend, process_result),
           do: backend.backend_mod.upload(backend, process_result)
   end
+
+  defp verify_file_size(%{max_size: -1}, _), do: :ok
+  defp verify_file_size(%{max_size: max_size}, %Exfile.File{} = file) do
+    case Exfile.File.size(file) do
+      {:ok, size} -> verify_file_size(max_size, size)
+      error -> error
+    end
+  end
+  defp verify_file_size(%{max_size: max_size}, %Exfile.LocalFile{} = lf) do
+    case Exfile.LocalFile.size(lf) do
+      {:ok, size} -> verify_file_size(max_size, size)
+      error -> error
+    end
+  end
+  defp verify_file_size(max_size, file_size) when file_size > max_size,
+    do: {:error, :too_big}
+  defp verify_file_size(_max_size, _file_size),
+    do: :ok
 
   @doc """
   Get the `Exfile.File` struct representing a file on the given backend.

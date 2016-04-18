@@ -136,4 +136,25 @@ defmodule Exfile.RouterTest do
 
     assert File.exists?(Path.expand("./tmp/cache/#{body["id"]}")) == true
   end
+
+  test "returns 422 and a valid JSON object containing error details on a POST to /:backend when the file failed to upload" do
+    path = Plug.Upload.random_file!("multipart")
+    contents = """
+    hello there, how are you doing? this string is more than 100 bytes and
+    should fail the uploading process!!
+    """
+    File.write(path, contents)
+    upload =  %Plug.Upload{filename: "file", path: path,
+                           content_type: "application/octet-stream"}
+    body = %{"file" => upload}
+    conn = conn(:post, "/limited", body)
+    conn = Router.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 422
+
+    body = Poison.decode!(conn.resp_body)
+    assert body["error"] == true
+    assert body["error_message"] == "too_big"
+  end
 end

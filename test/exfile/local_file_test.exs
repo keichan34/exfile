@@ -60,4 +60,19 @@ defmodule Exfile.LocalFileTest do
     assert File.exists?(file.path) == true
     assert File.read!(file.path) == @file_contents
   end
+
+  test "size/1 works with a file-based LocalFile" do
+    {:ok, size} = LocalFile.size(lf_with_file)
+    assert size == byte_size(@file_contents)
+  end
+
+  test "size/1 works with an IO-based (normal) LocalFile" do
+    {:ok, size} = LocalFile.size(lf_with_io)
+    assert size == byte_size(@file_contents)
+  end
+
+  test "size/1 works with an IO-based (ram) LocalFile" do
+    {:ok, size} = LocalFile.size(lf_with_ram_io)
+    assert size == byte_size(@file_contents)
+  end
 end

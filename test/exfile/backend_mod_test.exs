@@ -33,4 +33,13 @@ defmodule Exfile.BackendModTest do
     {expected, _} = String.split_at(String.reverse(@file_contents), 5)
     assert everything == expected
   end
+
+  test "uploading a file bigger than the configured max_size returns an error" do
+    backend = Exfile.Config.get_backend("limited")
+    contents = """
+    hello there, how are you doing? this string is more than 100 bytes and
+    should fail the uploading process!!
+    """
+    assert {:error, :too_big} = Exfile.BackendTest.upload_string(backend, contents)
+  end
 end

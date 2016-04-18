@@ -76,4 +76,22 @@ defmodule Exfile.LocalFile do
   def copy_to_tempfile(%LF{io: nil, path: nil}) do
     raise ArgumentError, message: "I expected an Exfile.LocalFile with either an io or a path, but you gave me one with neither."
   end
+
+  @doc """
+  Returns the size (in bytes) of the file.
+  """
+  @spec size(t) :: {:ok, integer} | {:error, :file.posix}
+  def size(%LF{path: path}) when not_nil(path) do
+    case File.stat(path) do
+      {:ok, %{size: size}} -> {:ok, size}
+      error -> error
+    end
+  end
+
+  def size(%LF{io: io}) when not_nil(io) do
+    stream = IO.binstream(io, 1)
+    size = Enum.count(stream)
+    :file.position(io, :bof)
+    {:ok, size}
+  end
 end
