@@ -56,6 +56,10 @@ defmodule Exfile.File do
   end
 end
 
+if Code.ensure_loaded?(Phoenix.HTML.Safe) do
+
 defimpl Phoenix.HTML.Safe, for: Exfile.File do
   def to_iodata(%Exfile.File{id: id}), do: id
+end
+
 end
