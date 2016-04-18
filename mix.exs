@@ -78,8 +78,7 @@ defmodule Exfile.Mixfile do
 
   defp description do
     """
-    File upload handling in Elixir and Plug. Supports pluggable processors and
-    storage backends.
+    File upload persistence and processing for Phoenix / Plug.
     """
   end
 

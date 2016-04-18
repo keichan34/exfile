@@ -2,32 +2,59 @@
 
 [![Build Status](https://travis-ci.org/keichan34/exfile.svg?branch=master)](https://travis-ci.org/keichan34/exfile) [![hex.pm](https://img.shields.io/hexpm/v/exfile.svg)](https://hex.pm/packages/exfile) [![hexdocs](https://img.shields.io/badge/hex-docs-brightgreen.svg)](http://hexdocs.pm/exfile/readme.html)
 
-File upload handling in Elixir and Plug. Inspired heavily by [Refile](https://github.com/refile/refile).
-If you use Ruby, check Refile out. I like it. A lot. 👍
+File upload persistence and processing for Phoenix / Plug, with a focus on
+flexibility and extendability.
 
-Requires Elixir `~> 1.2.0`. At this point, it is only tested against the most 
+Inspired heavily by  [Refile](https://github.com/refile/refile). If you use
+Ruby, check Refile out. I like it. 👍
+
+Requires Elixir `~> 1.2.0`. At this point, it is only tested against the most
 recent version of Elixir.
 
-In very heavy development. Expect things to break. I'll release 1.0 when it's
-ready and I have it in a production environment.
+Exfile is used in a production environment at this point, but it still may go
+through some breaking changes. Exfile aims to adheres to
+[semver v2.0](http://semver.org/spec/v2.0.0.html).
 
 ## Storage Adapters
 
-Exfile, like Refile, supports pluggable storage adapters. Exfile ships with a
-filesystem-backed storage adapter.
+Exfile supports storage backend adapters. A local filesystem based
+adapter is included (`Exfile.Backend.FileSystem`) as an example.
 
-* [exfile-memory](https://github.com/keichan34/exfile-memory) -- a memory-backed
-	(ETS) storage adapter. This is usually only useful as a cache.
 * [exfile-b2](https://github.com/keichan34/exfile-b2) -- storage adapter for
-	Backblaze B2.
+	the [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html) cloud
+	storage service.
 
 ## File Processors
 
-Exfile supports pluggable file processors / filters. If you're working with
+Exfile also supports file processors / filters. If you're working with
 images, `exfile-imagemagick` is recommended.
 
-* [exfile-imagemagick](https://github.com/keichan34/exfile-imagemagick)
-* [exfile-encryption](https://github.com/keichan34/exfile-encryption)
+* [exfile-imagemagick](https://github.com/keichan34/exfile-imagemagick) -- uses
+	ImageMagick to resize, crop, and transform images.
+* [exfile-encryption](https://github.com/keichan34/exfile-encryption) -- encrypts
+	files before uploading them and decrypts them after downloading them from the
+	backend.
+
+## Usage Overview
+
+Exfile applies transforms on the fly; it only stores the original file in the
+storage backend. It is expected to be behind a caching HTTP proxy and/or a
+caching CDN for performance. Because dimensions and processors are determined
+by the path, it is authenticated with a HMAC to make sure it is not tampered
+with.
+
+The Phoenix integration comes with two helper functions, `exfile_url` and
+`exfile_path`.
+
+For example, the following code will return a path to the `user`'s `profile_picture`
+that is converted to JPEG (if not already in JPEG format) and limited to 1024 × 1024.
+
+```elixir
+exfile_url(@conn, @user.profile_picture, format: "jpg", processor: "limit", processor_args: [1024, 1024])
+```
+
+For more information about what processors are available for images, check out
+[exfile-imagemagick](https://github.com/keichan34/exfile-imagemagick).
 
 ## Installation
 
@@ -100,6 +127,18 @@ defmodule MyApp.User do
 
   schema "users" do
     field :profile_picture, Exfile.Ecto.File
+  end
+end
+```
+
+```elixir
+defmodule MyApp.Repo.Migrations.AddProfilePictureToUsers do
+  use Ecto.Migration
+
+  def change do
+    alter table(:users) do
+      add :profile_picture, :string
+    end
   end
 end
 ```
