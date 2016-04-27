@@ -78,6 +78,8 @@ For more information about what processors are available for images, check out
 
 ### Phoenix
 
+[There is a sample Phoenix application with Exfile integrated you can check out.](https://github.com/keichan34/phoenix_exfile_test_app)
+
 ```elixir
 defmodule MyApp.Router do
   use MyApp.Web, :router
