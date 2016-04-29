@@ -71,8 +71,8 @@ defmodule Exfile.Config do
   @doc """
   Re-initialize all registered backends
   """
-  def refresh_backend_config() do
-    GenServer.call(__MODULE__, :refresh_backend_config)
+  def refresh_backend_config(timeout \\ 5_000) do
+    GenServer.call(__MODULE__, :refresh_backend_config, timeout)
   end
 
   ## Callbacks
