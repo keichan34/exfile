@@ -62,7 +62,7 @@ For more information about what processors are available for images, check out
 
 	```elixir
 	def deps do
-	  [{:exfile, "~> 0.3.2"}]
+	  [{:exfile, "~> 0.3.3"}]
 	end
 	```
 

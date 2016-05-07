@@ -1,6 +1,6 @@
 # Exfile Changelog
 
-## v0.3.3 (unreleased)
+## v0.3.3
 
 ## Enhancements
 
