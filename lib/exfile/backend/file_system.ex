@@ -1,18 +1,29 @@
 defmodule Exfile.Backend.FileSystem do
+  @moduledoc """
+  A local filesystem-backed backend.
+
+  FileSystem accepts the standard initialization options, plus one:
+
+  * `:ttl` -- configurable TTL (in seconds) for files stored in the backend.
+    Files are checked and vacuumed on initialization or by calling `vacuum/1`
+    manually. Note that the mtime (file modification timestamp) is used to
+    determine if a file should be deleted or not. This option only makes sense
+    in an ephemeral cache configuration, never a persistent store.
+  """
+
   use Exfile.Backend
 
   alias Exfile.LocalFile
 
-  @read_buffer 2048
-
   def init(opts) do
     {:ok, backend} = super(opts)
-    case File.mkdir_p(backend.directory) do
-      :ok ->
-        backend
-      {:error, reason} ->
-        {:error, reason}
-    end
+    ttl = Keyword.get(opts, :ttl, :infinity)
+    backend = backend
+    |> Exfile.Backend.put_meta(:ttl, ttl)
+
+    with  :ok <- File.mkdir_p(backend.directory),
+          :ok <- vacuum(backend),
+          do: backend
   end
 
   def get(backend, id) do
@@ -75,5 +86,33 @@ defmodule Exfile.Backend.FileSystem do
 
   def exists?(backend, id) do
     File.exists?(path(backend, id))
+  end
+
+  @doc """
+  Scan & delete files in backend that have expired
+
+  No-op when the `:ttl` option is "infinity" or nil (default).
+  """
+  @spec vacuum(Exfile.Backend.t) :: :ok | {:error, :file.posix}
+  def vacuum(backend)
+  def vacuum(%{meta: %{ttl: ttl}}) when ttl in [nil, :infinity], do: :ok
+  def vacuum(%{directory: dir, meta: %{ttl: ttl}}) when is_integer(ttl) do
+    now = :os.system_time(:seconds)
+    with  {:ok, files} <- File.ls(dir),
+          do: perform_vacuum(dir, ttl, now, files)
+  end
+
+  defp perform_vacuum(_,   _,   _,   []), do: :ok
+  defp perform_vacuum(_,   _,   _,   {:error, _} = error), do: error
+  defp perform_vacuum(dir, ttl, now, [file | files]) do
+    file_abspath = Path.join(dir, file)
+    files_or_error = case File.stat(file_abspath, time: :posix) do
+      {:ok, %File.Stat{mtime: time}} when (time + ttl) < now ->
+        # perform delete
+        with :ok <- File.rm(file_abspath), do: files
+      {:ok, _} -> files
+      error -> error
+    end
+    perform_vacuum(dir, ttl, now, files_or_error)
   end
 end

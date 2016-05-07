@@ -30,4 +30,22 @@ defmodule Exfile.Backend.FileSystemTest do
     {:ok, open_file} = LocalFile.open(local_file)
     assert IO.read(open_file, :all) == string
   end
+
+  test "setting a TTL will remove files that haven't been modified for the specified number of seconds", _ do
+    dir = Path.expand("./tmp/test_filesystem_3")
+    File.mkdir_p!(dir)
+
+    File.touch!(Path.join(dir, "new_file.txt"))
+    File.touch!(Path.join(dir, "old_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> -(3600) |> :calendar.gregorian_seconds_to_datetime)
+    File.touch!(Path.join(dir, "future_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> +(3600) |> :calendar.gregorian_seconds_to_datetime)
+
+    _backend = backend_mod.init(
+      directory: dir,
+      ttl: 100
+    )
+
+    assert File.exists?(Path.join(dir, "new_file.txt"))
+    refute File.exists?(Path.join(dir, "old_file.txt"))
+    assert File.exists?(Path.join(dir, "future_file.txt"))
+  end
 end

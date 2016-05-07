@@ -131,6 +131,14 @@ defmodule Exfile.Backend do
     do: :ok
 
   @doc """
+  Puts a value in the "meta" section of the backend setting.
+  """
+  @spec put_meta(backend, any, any) :: backend
+  def put_meta(backend, key, value) do
+    %{backend | meta: Map.put(backend.meta, key, value)}
+  end
+
+  @doc """
   Get the `Exfile.File` struct representing a file on the given backend.
 
   This function does not open the file or download it. Use open/2 or
