@@ -91,7 +91,7 @@ defmodule Exfile.LocalFile do
   def size(%LF{io: io}) when not_nil(io) do
     stream = IO.binstream(io, 1)
     size = Enum.count(stream)
-    :file.position(io, :bof)
+    _ = :file.position(io, :bof)
     {:ok, size}
   end
 end
