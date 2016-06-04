@@ -1,6 +1,7 @@
 # Exfile
 
 [![Build Status](https://travis-ci.org/keichan34/exfile.svg?branch=master)](https://travis-ci.org/keichan34/exfile) [![hex.pm](https://img.shields.io/hexpm/v/exfile.svg)](https://hex.pm/packages/exfile) [![hexdocs](https://img.shields.io/badge/hex-docs-brightgreen.svg)](http://hexdocs.pm/exfile/readme.html)
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/keichan34/exfile.svg)](https://beta.hexfaktor.org/github/keichan34/exfile)
 
 File upload persistence and processing for Phoenix / Plug, with a focus on
 flexibility and extendability.
