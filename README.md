@@ -84,7 +84,7 @@ For more information about what processors are available for images, check out
 defmodule MyApp.Router do
   use MyApp.Web, :router
 
-  foward "/attachments", Exfile.Router
+  forward "/attachments", Exfile.Router
   ...
 ```
 
