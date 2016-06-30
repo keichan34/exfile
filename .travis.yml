@@ -5,3 +5,7 @@ elixir:
 otp_release:
   - 18.0
   - 18.2
+  - 19.0
+matrix:
+  allow_failures:
+    - otp_release: 19.0
