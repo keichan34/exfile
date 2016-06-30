@@ -36,8 +36,8 @@ defmodule Exfile.Backend.FileSystemTest do
     File.mkdir_p!(dir)
 
     File.touch!(Path.join(dir, "new_file.txt"))
-    File.touch!(Path.join(dir, "old_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> -(3600) |> :calendar.gregorian_seconds_to_datetime)
-    File.touch!(Path.join(dir, "future_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> +(3600) |> :calendar.gregorian_seconds_to_datetime)
+    File.touch!(Path.join(dir, "old_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> Kernel.-(3600) |> :calendar.gregorian_seconds_to_datetime)
+    File.touch!(Path.join(dir, "future_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> Kernel.+(3600) |> :calendar.gregorian_seconds_to_datetime)
 
     _backend = backend_mod.init(
       directory: dir,
