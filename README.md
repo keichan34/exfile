@@ -9,8 +9,9 @@ flexibility and extendability.
 Inspired heavily by  [Refile](https://github.com/refile/refile). If you use
 Ruby, check Refile out. I like it. 👍
 
-Requires Elixir `~> 1.2.0`. At this point, it is only tested against the most
-recent version of Elixir.
+Requires Elixir `~> 1.2`. At this point, it is tested against the most recent
+versions of Elixir (`1.2.6` and `1.3.1`). Feel free to check the Travis build
+out.
 
 Exfile is used in a production environment at this point, but it still may go
 through some breaking changes. Exfile aims to adheres to
