@@ -5,6 +5,8 @@ File.rm_rf!(Path.expand("./tmp"))
 # initialized.
 File.mkdir_p!(Path.expand("./tmp/cache"))
 
+Application.ensure_all_started(:tzdata)
+
 ExUnit.start()
 
 Exfile.ProcessorRegistry.register "error", Exfile.ErrorProcessor
