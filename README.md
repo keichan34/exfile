@@ -147,6 +147,27 @@ defmodule MyApp.Repo.Migrations.AddProfilePictureToUsers do
 end
 ```
 
+### Validations
+
+Exfile supports content type validation. Example of usage:
+
+```elixir
+defmodule MyApp.User do
+  # definitions here
+
+  import Exfile.Ecto.ValidateContentType
+
+  def changeset(model, params) do
+    model
+    |> cast(params, [:avatar])
+    |> validate_content_type(:avatar, :image)
+  end
+end
+```
+
+You can specify either an atom (could be `:image`, `:audio`, `:video`) or a list of strings
+`~w(image/bmp image/gif image/jpeg)`.
+
 ## Configuration
 
 In `config.exs`:
