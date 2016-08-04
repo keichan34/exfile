@@ -44,8 +44,10 @@ defmodule Exfile.ProcessorChain do
   def coerce_to_local_file(%LocalFile{} = local_file),
     do: local_file
   def coerce_to_local_file(%Exfile.File{} = file) do
-    {:ok, local_file} = Exfile.File.open(file)
-    local_file
+    case Exfile.File.open(file) do
+      { :ok, local_file } -> local_file
+      { :error, _ }       -> %LocalFile{}
+    end
   end
 
   defp do_process(_, {:error, _} = error_term),

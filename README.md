@@ -168,6 +168,28 @@ end
 You can specify either an atom (could be `:image`, `:audio`, `:video`) or a list of strings
 `~w(image/bmp image/gif image/jpeg)`.
 
+### Storing metadata to the database
+
+You can `cast_content_type` and store it to the database as a separate field. You need to
+have a string field in your database and go:
+
+``` elixir
+defmodule MyApp.User do
+  # definitions here
+
+  import Exfile.Ecto.CastContentType
+
+  def changeset(model, params) do
+    model
+    |> cast(params, [:avatar])
+    |> cast_content_type(:avatar)
+  end
+end
+```
+
+By default, exfile will save content type to the `avatar_content_type` field. You
+can specify custom field as the third parameter of `cast_content_type` function.
+
 ## Configuration
 
 In `config.exs`:
