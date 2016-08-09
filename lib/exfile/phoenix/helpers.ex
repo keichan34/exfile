@@ -70,7 +70,7 @@ defmodule Exfile.Phoenix.Helpers do
     do: do_exfile_url(nil, file, opts)
   def exfile_url(%{__struct__: mod} = other, file, opts) when mod in [Plug.Conn, Phoenix.Socket, URI],
     do: do_exfile_url(other, file, opts)
-  def exfile_url(endpoint, file, opts) when not is_nil(endpoint) and is_atom(endpoint),
+  def exfile_url(endpoint, file, opts) when is_atom(endpoint),
     do: do_exfile_url(endpoint, file, opts)
 
   defp do_exfile_url(base, %File{} = file, opts) do
