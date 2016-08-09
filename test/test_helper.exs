@@ -7,6 +7,8 @@ File.mkdir_p!(Path.expand("./tmp/cache"))
 
 Application.ensure_all_started(:tzdata)
 
+Ecto.Adapters.SQL.Sandbox.mode(Exfile.Repo, :manual)
+
 ExUnit.start()
 
 Exfile.ProcessorRegistry.register "error", Exfile.ErrorProcessor

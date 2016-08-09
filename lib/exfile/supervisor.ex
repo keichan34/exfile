@@ -14,6 +14,12 @@ defmodule Exfile.Supervisor do
       worker(Exfile.ProcessorRegistry, []),
     ]
 
+    children = if Mix.env == :test do
+      children ++ [
+        worker(Exfile.Repo, [])
+      ]
+    end
+
     supervise(children, strategy: :one_for_one)
   end
 end
