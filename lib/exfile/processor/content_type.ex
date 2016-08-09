@@ -8,17 +8,17 @@ defmodule Exfile.Processor.ContentType do
   def call(file, _, _) do
     local_file = Exfile.ProcessorChain.coerce_to_local_file(file)
     if File.exists?(local_file.path) do
-      perform_file_cmd(local_file)
+      perform_file_cmd(file, local_file)
     else
       { :error, :unable_to_read_file }
     end
   end
 
-  defp perform_file_cmd(local_file) do
+  defp perform_file_cmd(file, local_file) do
     case System.cmd("file", ["--mime-type", local_file.path]) do
       { result, 0 } ->
         meta = Map.merge(local_file.meta, extract_meta(result))
-        { :ok, %{ local_file | meta: meta }}
+        { :ok, %{ file | meta: meta }}
       _             -> { :error, :unable_to_read_file }
     end
   end
