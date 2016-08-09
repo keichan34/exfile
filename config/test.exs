@@ -30,3 +30,11 @@ config :exfile, Exfile,
   allow_uploads_to: ["cache", "limited"]
 
 config :logger, level: :info
+
+config :exfile,
+  ecto_repos: [Exfile.Repo]
+
+config :exfile, Exfile.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "exfile_test",
+  pool: Ecto.Adapters.SQL.Sandbox

@@ -4,11 +4,19 @@ defmodule Exfile.Ecto.ValidateContentTypeTest do
   import Ecto.Changeset, only: [cast: 3]
   import Exfile.Ecto.ValidateContentType
 
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Exfile.Repo)
+
+    :ok
+  end
+
   test "passes with correct content type" do
     changeset = cast(initial_changeset, %{ image: image_file }, [:image])
       |> validate_content_type(:image, ~w(image/jpeg))
 
     assert changeset.valid? == true
+
+    assert {:ok, _image} = Exfile.Repo.insert(changeset)
   end
 
   test "invalid with wrong content type" do
@@ -34,10 +42,7 @@ defmodule Exfile.Ecto.ValidateContentTypeTest do
   end
 
   defp initial_changeset do
-    data  = %{ image: nil }
-    types = %{ image: Exfile.Ecto.File }
-
-    { data, types }
+    %Exfile.S.Image{}
   end
 
   defp image_file do

@@ -27,6 +27,7 @@ defmodule Exfile.Mixfile do
         ]
       ],
       aliases: [
+        "test": ["ecto.create --quiet", "ecto.migrate", "test"],
         "publish": [&git_tag/1, "hex.publish", "hex.docs"]
       ]
     ]
@@ -59,6 +60,7 @@ defmodule Exfile.Mixfile do
       {:phoenix_html, "~> 2.3", optional: true},
       {:poison, "~> 1.5 or ~> 2.0", optional: true},
       {:timex, "~> 2.0", only: [:dev, :test]},
+      {:postgrex, "~> 0.11", only: [:dev, :test]},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev}
     ]
