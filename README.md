@@ -178,17 +178,21 @@ defmodule MyApp.User do
   # definitions here
 
   import Exfile.Ecto.CastContentType
+  import Exfile.Ecto.CastFilename
 
   def changeset(model, params) do
     model
     |> cast(params, [:avatar])
     |> cast_content_type(:avatar)
+    |> cast_filename(:avatar)
   end
 end
 ```
 
-By default, exfile will save content type to the `avatar_content_type` field. You
-can specify custom field as the third parameter of `cast_content_type` function.
+By default, exfile will save content type to the `avatar_content_type` field.
+The filename will be saved to the `avatar_filename` field. You can specify
+custom field as the third parameter of the `cast_content_type` or
+`cast_filename` function.
 
 ## Configuration
 

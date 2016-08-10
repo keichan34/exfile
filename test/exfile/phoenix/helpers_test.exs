@@ -34,6 +34,12 @@ defmodule Exfile.Phoenix.HelpersTest do
     assert H.exfile_path(a_file, format: "png") == build_path("store/file_id/file.png")
   end
 
+  test "path to file with filename" do
+    assert H.exfile_path(a_file, filename: "hello-there.jpg") == build_path("store/file_id/hello-there.jpg")
+    assert H.exfile_path(a_file, filename: "hello-there.png", format: "png") == build_path("store/file_id/hello-there.png")
+    assert H.exfile_path(a_file, filename: "hello-there.png", format: "jpg") == build_path("store/file_id/hello-there.png")
+  end
+
   test "path to file with processor" do
     assert H.exfile_path(a_file, processor: "dummy-processor") == build_path("store/dummy-processor/file_id/file")
     assert H.exfile_path(a_file, processor: "dummy-processor", format: "jpeg") == build_path("store/dummy-processor/file_id/file.jpeg")

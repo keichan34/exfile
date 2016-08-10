@@ -66,12 +66,19 @@ defmodule Exfile.Ecto.FileTemplate do
             :error
         end
       end
-      def cast(%Plug.Upload{path: path}) do
-        cast(%Exfile.LocalFile{path: path})
+      def cast(%Plug.Upload{path: path, filename: filename}) do
+        cast(%Exfile.LocalFile{
+          path: path,
+          meta: %{
+            "filename" => filename
+          }
+        })
       end
       def cast(%Exfile.LocalFile{} = local_file) do
         case Exfile.Backend.upload(backend, local_file) do
           {:ok, new_file} ->
+            meta = Map.merge(new_file.meta, local_file.meta)
+            new_file = %{ new_file | meta: meta }
             {:ok, new_file}
           {:error, _reason} ->
             :error

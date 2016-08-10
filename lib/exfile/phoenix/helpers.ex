@@ -22,10 +22,20 @@ defmodule Exfile.Phoenix.Helpers do
   alias Exfile.{Config, Token, File}
 
   @type exfile_path_opts ::
-    [processor: String.t, processor_args: [String.t], format: String.t]
+    [
+      processor: String.t, processor_args: [String.t], format: String.t,
+      filename: String.t
+    ]
 
   @doc """
   Returns the absolute path of a file with the options passed.
+
+  Valid options:
+
+  * `processor`: Specify a processor to run before outputing the file (string).
+  * `processor_args`: Specify a list of arguments to pass to the processor. Requires `processor` to be set.
+  * `format`: Specify the format of the file
+  * `filename`: Customize the filename (default is `file.[format]` or `file` if format is not specified). Note that this will override anything that is set in `format`.
   """
   @spec exfile_path(File.t) :: String.t
   @spec exfile_path(File.t, exfile_path_opts) :: String.t
@@ -46,7 +56,13 @@ defmodule Exfile.Phoenix.Helpers do
 
     format = Keyword.get(opts, :format)
     format_ext = if format, do: "." <> format
-    path = path ++ [file.id, "file#{format_ext}"]
+    filename = Keyword.get(opts, :filename)
+      |> case do
+        nil -> "file#{format_ext}"
+        filename -> filename
+      end
+
+    path = path ++ [file.id, filename]
 
     "/attachments/" <> (Enum.join(path, "/") |> Token.build_path)
   end
@@ -54,7 +70,9 @@ defmodule Exfile.Phoenix.Helpers do
   @doc """
   Returns the absolute URL of a file with the options passed.
 
-  The first argument accepts any parameter that the Phoenix generated _url
+  See `exfile_path/2` for valid options.
+
+  The first argument accepts any parameter that the Phoenix generated `_url`
   function takes. If `cdn_host` is configured for Exfile, this first argument
   is not necessary.
   """
