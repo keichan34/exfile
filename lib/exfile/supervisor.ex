@@ -18,6 +18,8 @@ defmodule Exfile.Supervisor do
       children ++ [
         worker(Exfile.Repo, [])
       ]
+    else
+      children
     end
 
     supervise(children, strategy: :one_for_one)
