@@ -1,6 +1,7 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
 
 defmodule Exfile.Phoenix.Helpers do
+  use Phoenix.HTML
   @moduledoc """
   View helpers to use Exfile in your Phoenix app.
 
@@ -94,7 +95,9 @@ defmodule Exfile.Phoenix.Helpers do
   defp do_exfile_url(base, %File{} = file, opts) do
     hostname_with_proto_for_url(base) <> exfile_path(file, opts)
   end
-
+  
+  defp do_exfile_url(base, _, _), do: nil
+  
   defp hostname_with_proto_for_url(base) do
     Config.cdn_host || Phoenix.Router.Helpers.url(nil, base)
   end
