@@ -75,8 +75,15 @@ For more information about what processors are available for images, check out
 	  [applications: [:exfile]]
 	end
 	```
+3. Add `Exfile.Repo` and [specify it in configuration](#configuration):
 
-3. Mount the Exfile routes in your router.
+```elixir
+defmodule Exfile.Repo do
+  use Ecto.Repo, otp_app: :exfile
+end
+```
+
+4. Mount the Exfile routes in your router.
 
 ### Phoenix
 
@@ -201,6 +208,7 @@ In `config.exs`:
 ```elixir
 config :exfile, Exfile,
   secret: "secret string to generate the token used to authenticate requests",
+  repo: Exfile.Repo,
   backends: %{
     "store" => configuration for the default persistent store
     "cache" => configuration for an ephemeral store holding temporarily uploaded content
