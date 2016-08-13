@@ -1,6 +1,16 @@
 defmodule Exfile.Supervisor do
   @moduledoc false
 
+  defmacrop test_children do
+    if Mix.env == :test do
+      quote do
+        [Supervisor.Spec.worker(Exfile.Repo, [])]
+      end
+    else
+      quote do: []
+    end
+  end
+
   def start_link() do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -14,13 +24,7 @@ defmodule Exfile.Supervisor do
       worker(Exfile.ProcessorRegistry, []),
     ]
 
-    children = if Mix.env == :test do
-      children ++ [
-        worker(Exfile.Repo, [])
-      ]
-    else
-      children
-    end
+    children = children ++ test_children
 
     supervise(children, strategy: :one_for_one)
   end
