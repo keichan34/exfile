@@ -201,6 +201,7 @@ In `config.exs`:
 ```elixir
 config :exfile, Exfile,
   secret: "secret string to generate the token used to authenticate requests",
+  cdn_host: "root_url", # nginx/other webserver endpoint for your website. Defaults to Phoenix HTTP endpoint
   backends: %{
     "store" => configuration for the default persistent store
     "cache" => configuration for an ephemeral store holding temporarily uploaded content
