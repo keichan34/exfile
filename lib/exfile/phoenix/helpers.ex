@@ -96,7 +96,7 @@ defmodule Exfile.Phoenix.Helpers do
     hostname_with_proto_for_url(base) <> exfile_path(file, opts)
   end
   
-  defp do_exfile_url(base, _, _), do: nil
+  defp do_exfile_url(_, _, _), do: nil
   
   defp hostname_with_proto_for_url(base) do
     Config.cdn_host || Phoenix.Router.Helpers.url(nil, base)
