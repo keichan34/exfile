@@ -1,7 +1,6 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
 
 defmodule Exfile.Phoenix.Helpers do
-  use Phoenix.HTML
   @moduledoc """
   View helpers to use Exfile in your Phoenix app.
 
