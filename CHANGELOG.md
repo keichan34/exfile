@@ -1,8 +1,20 @@
 # Exfile Changelog
 
+## v0.4
+
+### Breaking Changes
+
+* When a file is cast to an Ecto field, it will be uploaded to a cache backend.
+	Because Ecto doesn't have callbacks, the step to save the files to the store
+	backend has to be called manually. See the documentation of
+	`Exfile.Ecto.prepare_uploads/2` for more details.
+* The Exfile URI of a file, specifying both the backend and file ID, is now stored
+	in the Ecto field. Exfile recognizes vanilla file IDs, but this may be 
+	removed by v1.0. (An Exfile URI looks like `exfile://[backend name]/[file id]`)
+
 ## v0.3.3
 
-## Enhancements
+### Enhancements
 
 * Configurable timeout for refreshing backends (default is still 5 seconds)
 * Implement TTL option for files in a FileSystem backend

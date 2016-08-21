@@ -11,6 +11,10 @@ config :exfile, Exfile,
       directory: Path.expand("./tmp/cache"),
       hasher: Exfile.Hasher.Random
     },
+    "store2" => {Exfile.Backend.FileSystem,
+      directory: Path.expand("./tmp/store"),
+      hasher: Exfile.Hasher.Random
+    },
     "pre" => {Exfile.Backend.FileSystem,
       directory: Path.expand("./tmp/pre"),
       hasher: Exfile.Hasher.Random,
