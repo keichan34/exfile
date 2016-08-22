@@ -2,13 +2,14 @@ defmodule Exfile.Ecto.FileTemplateTest do
   use ExUnit.Case, async: true
 
   defmodule TestFile do
-    use Exfile.Ecto.FileTemplate, backend: "cache"
+    use Exfile.Ecto.FileTemplate, backend: "store", cache_backend: "cache"
   end
 
   import Ecto.Type
 
   def backend, do: Exfile.Config.get_backend("cache")
   def store_backend, do: Exfile.Config.get_backend("store")
+  def store2_backend, do: Exfile.Config.get_backend("store2")
 
   def file_contents_equal(file, contents) do
     {:ok, local_file} = Exfile.File.open(file)
@@ -24,14 +25,24 @@ defmodule Exfile.Ecto.FileTemplateTest do
     # rewind the io because it's been read in the upload process above
     :file.position(io, :bof)
 
+    {:ok, store_file} = Exfile.Backend.upload(store_backend, local_file)
+    # rewind the io because it's been read in the upload process above
+    :file.position(io, :bof)
+
+    {:ok, store2_file} = Exfile.Backend.upload(store2_backend, local_file)
+    # rewind the io because it's been read in the upload process above
+    :file.position(io, :bof)
+
     {:ok, %{
       file_contents: file_contents,
-      loaded_file: file,
+      cache_file: file,
+      store_file: store_file,
+      store2_file: store2_file,
       local_file: local_file
     }}
   end
 
-  test "casting a Exfile.File returns a new Exfile.File", %{loaded_file: file, file_contents: file_contents} do
+  test "casting a Exfile.File returns a new Exfile.File", %{store2_file: file, file_contents: file_contents} do
     {:ok, new_file} = cast(TestFile, file)
 
     assert %Exfile.File{} = new_file
@@ -57,7 +68,7 @@ defmodule Exfile.Ecto.FileTemplateTest do
     assert file_contents_equal(new_file, file_contents)
   end
 
-  test "casting a string binary representing an existing file works", %{loaded_file: file, file_contents: file_contents} do
+  test "casting a string binary representing an existing file works", %{cache_file: file, file_contents: file_contents} do
     {:ok, new_file} = cast(TestFile, "exfile://cache/" <> file.id)
 
     assert %Exfile.File{} = new_file
@@ -70,11 +81,11 @@ defmodule Exfile.Ecto.FileTemplateTest do
     file_contents = "hello there"
     {:ok, io} = File.open(file_contents, [:ram, :binary, :read])
     local_file = %Exfile.LocalFile{io: io}
-    {:ok, file} = Exfile.Backend.upload(store_backend, local_file)
+    {:ok, file} = Exfile.Backend.upload(store2_backend, local_file)
     # rewind the io because it's been read in the upload process above
     :file.position(io, :bof)
 
-    {:ok, new_file} = cast(TestFile, "exfile://store/" <> file.id)
+    {:ok, new_file} = cast(TestFile, "exfile://store2/" <> file.id)
 
     assert %Exfile.File{} = new_file
     assert new_file.backend == backend
@@ -82,15 +93,21 @@ defmodule Exfile.Ecto.FileTemplateTest do
     assert file_contents_equal(new_file, file_contents)
   end
 
-  test "loading a binary from the database returns a valid Exfile.File", %{loaded_file: file} do
+  test "loading a binary from the database returns a valid Exfile.File", %{store_file: file} do
     assert {:ok, ^file} = load(TestFile, file.id)
   end
 
-  test "dumping an Exfile.File returns the correct file ID", %{loaded_file: file} do
-    assert {:ok, file.id} == dump(TestFile, file)
+  test "dumping an Exfile.File returns the correct file URI", %{cache_file: file} do
+    assert {:ok, Exfile.File.uri(file)} == dump(TestFile, file)
   end
 
   test "the type is :string", _ do
     assert TestFile.type == :string
+  end
+
+  test "upload!/1 takes an Exfile.File in the cache backend and uploads it to the store backend", %{cache_file: file} do
+    assert file.backend == backend
+    assert {:ok, store_file} = TestFile.upload!(file)
+    assert store_file.backend == store_backend
   end
 end

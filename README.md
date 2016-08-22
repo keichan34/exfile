@@ -161,6 +161,7 @@ defmodule MyApp.User do
     model
     |> cast(params, [:avatar])
     |> validate_content_type(:avatar, :image)
+    |> Exfile.Ecto.prepare_uploads([:avatar])
   end
 end
 ```
@@ -185,6 +186,7 @@ defmodule MyApp.User do
     |> cast(params, [:avatar])
     |> cast_content_type(:avatar)
     |> cast_filename(:avatar)
+    |> Exfile.Ecto.prepare_uploads([:avatar])
   end
 end
 ```
