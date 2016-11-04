@@ -161,6 +161,7 @@ defmodule MyApp.User do
     model
     |> cast(params, [:avatar])
     |> validate_content_type(:avatar, :image)
+    |> validate_file_size(:avatar, 1_000_000) # Amount of bytes
     |> Exfile.Ecto.prepare_uploads([:avatar])
   end
 end
