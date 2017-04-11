@@ -11,7 +11,7 @@ defmodule Exfile.Ecto.ValidateFileSizeTest do
   end
 
   test "passes with big file size limit" do
-    changeset = cast(initial_changeset, %{ image: image_file }, [:image])
+    changeset = cast(initial_changeset(), %{ image: image_file() }, [:image])
       |> validate_file_size(:image, 631)
 
     assert changeset.valid? == true
@@ -20,7 +20,7 @@ defmodule Exfile.Ecto.ValidateFileSizeTest do
   end
 
   test "invalid with small file limit" do
-    changeset = cast(initial_changeset, %{ image: image_file }, [:image])
+    changeset = cast(initial_changeset(), %{ image: image_file() }, [:image])
       |> validate_file_size(:image, 630)
 
     assert changeset.valid? == false
@@ -28,17 +28,17 @@ defmodule Exfile.Ecto.ValidateFileSizeTest do
   end
 
   test "passes with no file" do
-    changeset = cast(initial_changeset, %{}, [:image])
+    changeset = cast(initial_changeset(), %{}, [:image])
       |> validate_file_size(:image, 631)
 
     assert changeset.valid? == true
   end
 
-  defp initial_changeset do
+  defp initial_changeset() do
     %Exfile.S.Image{}
   end
 
-  defp image_file do
+  defp image_file() do
     %Plug.Upload{ path: "test/fixtures/sample.jpg", filename: "sample.jpg" }
   end
 end

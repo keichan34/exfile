@@ -163,7 +163,7 @@ defmodule Exfile.Router do
     filename = List.last(conn.path_info)
     conn
     |> put_resp_header("content-disposition", "inline; filename=#{filename}")
-    |> put_resp_header("expires", expires_header)
+    |> put_resp_header("expires", expires_header())
     |> put_resp_header("cache-control", "max-age=31540000")
     |> set_content_type(path)
     |> send_file(200, path)
@@ -209,7 +209,7 @@ defmodule Exfile.Router do
     send_resp(conn, 400, "please upload a file") |> halt
   end
 
-  defp expires_header do
+  defp expires_header() do
     seconds = :calendar.local_time |> :calendar.datetime_to_gregorian_seconds
     (seconds + (365 * 24 * 60 * 60))
     |> :calendar.gregorian_seconds_to_datetime

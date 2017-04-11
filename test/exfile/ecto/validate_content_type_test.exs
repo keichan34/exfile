@@ -11,7 +11,7 @@ defmodule Exfile.Ecto.ValidateContentTypeTest do
   end
 
   test "passes with correct content type" do
-    changeset = cast(initial_changeset, %{ image: image_file }, [:image])
+    changeset = cast(initial_changeset(), %{ image: image_file() }, [:image])
       |> validate_content_type(:image, ~w(image/jpeg))
 
     assert changeset.valid? == true
@@ -20,7 +20,7 @@ defmodule Exfile.Ecto.ValidateContentTypeTest do
   end
 
   test "invalid with wrong content type" do
-    changeset = cast(initial_changeset, %{ image: image_file }, [:image])
+    changeset = cast(initial_changeset(), %{ image: image_file() }, [:image])
       |> validate_content_type(:image, ~w(video/mpeg))
 
     assert changeset.valid? == false
@@ -28,24 +28,24 @@ defmodule Exfile.Ecto.ValidateContentTypeTest do
   end
 
   test "passes with no file" do
-    changeset = cast(initial_changeset, %{}, [:image])
+    changeset = cast(initial_changeset(), %{}, [:image])
       |> validate_content_type(:image, ~w(image/jpeg))
 
     assert changeset.valid? == true
   end
 
   test "there are atoms for group of content types" do
-    changeset = cast(initial_changeset, %{ image: image_file }, [:image])
+    changeset = cast(initial_changeset(), %{ image: image_file() }, [:image])
       |> validate_content_type(:image, :image)
 
     assert changeset.valid? == true
   end
 
-  defp initial_changeset do
+  defp initial_changeset() do
     %Exfile.S.Image{}
   end
 
-  defp image_file do
+  defp image_file() do
     %Plug.Upload{ path: "test/fixtures/sample.jpg", filename: "sample.jpg" }
   end
 end

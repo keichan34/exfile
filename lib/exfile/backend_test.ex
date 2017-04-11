@@ -17,12 +17,12 @@ defmodule Exfile.BackendTest do
       alias Exfile.Backend
       alias Exfile.LocalFile
 
-      def backend_mod, do: unquote(backend_mod_to_test)
+      def backend_mod(), do: unquote(backend_mod_to_test)
 
       import Exfile.BackendTest
 
       setup do
-        backend = backend_mod.init(unquote(opts))
+        backend = backend_mod().init(unquote(opts))
         {:ok, [backend: backend]}
       end
 

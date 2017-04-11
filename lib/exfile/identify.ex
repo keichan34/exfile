@@ -8,7 +8,7 @@ defmodule Exfile.Identify do
   """
   @spec mime_type(Path.t) :: {:ok, String.t} | :error
   def mime_type(path) do
-    case System.cmd(file_cmd, ["--mime-type", "-b", path]) do
+    case System.cmd(file_cmd(), ["--mime-type", "-b", path]) do
       {out, 0} ->
         extract_content_type_from_file_output(out)
       {_, _} ->
@@ -25,6 +25,6 @@ defmodule Exfile.Identify do
     end
   end
 
-  defp file_cmd,
+  defp file_cmd(),
     do: :os.find_executable('file') |> IO.chardata_to_string
 end

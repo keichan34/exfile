@@ -17,7 +17,7 @@ defmodule Exfile.Backend.FileSystemTest do
   end
 
   test "uploading a different backend file works", c do
-    backend2 = backend_mod.init(
+    backend2 = backend_mod().init(
       directory: Path.expand("./tmp/test_filesystem_2")
     )
 
@@ -39,7 +39,7 @@ defmodule Exfile.Backend.FileSystemTest do
     File.touch!(Path.join(dir, "old_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> Kernel.-(3600) |> :calendar.gregorian_seconds_to_datetime)
     File.touch!(Path.join(dir, "future_file.txt"), :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds |> Kernel.+(3600) |> :calendar.gregorian_seconds_to_datetime)
 
-    _backend = backend_mod.init(
+    _backend = backend_mod().init(
       directory: dir,
       ttl: 100
     )

@@ -38,8 +38,8 @@ defmodule Exfile.Ecto.FileTemplate do
 
       @behaviour Ecto.Type
 
-      defp backend, do: Exfile.Config.get_backend(unquote(backend_name))
-      defp cache_backend, do: Exfile.Config.get_backend(unquote(cache_backend_name))
+      defp backend(), do: Exfile.Config.get_backend(unquote(backend_name))
+      defp cache_backend(), do: Exfile.Config.get_backend(unquote(cache_backend_name))
 
       @doc "The Ecto type"
       def type, do: :string
@@ -64,7 +64,7 @@ defmodule Exfile.Ecto.FileTemplate do
       ```
       """
       def cast(%Exfile.File{backend: %{backend_name: name}} = file) when not name in [unquote(backend_name), unquote(cache_backend_name)] do
-        case Exfile.Backend.upload(cache_backend, file) do
+        case Exfile.Backend.upload(cache_backend(), file) do
           {:ok, new_file} ->
             {:ok, new_file}
           {:error, _reason} ->
@@ -81,7 +81,7 @@ defmodule Exfile.Ecto.FileTemplate do
         })
       end
       def cast(%Exfile.LocalFile{} = local_file) do
-        case Exfile.Backend.upload(cache_backend, local_file) do
+        case Exfile.Backend.upload(cache_backend(), local_file) do
           {:ok, new_file} ->
             meta = Map.merge(new_file.meta, local_file.meta)
             new_file = %{ new_file | meta: meta }
@@ -137,7 +137,7 @@ defmodule Exfile.Ecto.FileTemplate do
       to the database and all validations are passing.
       """
       def upload!(file) do
-        Exfile.Backend.upload(backend, file)
+        Exfile.Backend.upload(backend(), file)
       end
     end
   end

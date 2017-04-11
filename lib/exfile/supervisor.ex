@@ -24,7 +24,7 @@ defmodule Exfile.Supervisor do
       worker(Exfile.ProcessorRegistry, []),
     ]
 
-    children = children ++ test_children
+    children = children ++ test_children()
 
     supervise(children, strategy: :one_for_one)
   end

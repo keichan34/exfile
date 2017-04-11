@@ -19,7 +19,7 @@ defmodule Exfile.Tempfile do
         {:too_many_attempts, binary, pos_integer} |
         {:no_tmp, [binary]}
   def random_file(prefix) do
-    GenServer.call(tempfile_server, {:random, prefix})
+    GenServer.call(tempfile_server(), {:random, prefix})
   end
 
   @doc """
@@ -42,10 +42,10 @@ defmodule Exfile.Tempfile do
   """
   @spec register_file(binary) :: :ok
   def register_file(path) do
-    GenServer.call(tempfile_server, {:register_file, path})
+    GenServer.call(tempfile_server(), {:register_file, path})
   end
 
-  defp tempfile_server do
+  defp tempfile_server() do
     Process.whereis(__MODULE__) ||
       raise "could not find process Exfile.Tempfile. Have you started the :exfile application?"
   end

@@ -8,14 +8,14 @@ defmodule Exfile.Mixfile do
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      deps: deps,
+      deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env),
       source_url: "https://github.com/keichan34/exfile",
       docs: [
         extras: ["README.md"]
       ],
-      package: package,
-      description: description,
+      package: package(),
+      description: description(),
       dialyzer: [
         plt_file: ".local.plt",
         plt_add_apps: [
@@ -61,8 +61,8 @@ defmodule Exfile.Mixfile do
       {:poison, "~> 1.5 or ~> 2.0", optional: true},
       {:timex, "~> 2.0", only: [:dev, :test]},
       {:postgrex, "~> 0.11", only: [:dev, :test]},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev}
+      {:earmark, "~> 1.1", only: :dev},
+      {:ex_doc, "~> 0.15", only: :dev}
     ]
   end
 
@@ -85,9 +85,9 @@ defmodule Exfile.Mixfile do
   end
 
   defp git_tag(_args) do
-    version_tag = case Version.parse(project[:version]) do
+    version_tag = case Version.parse(project()[:version]) do
       {:ok, %Version{pre: []}} ->
-        "v" <> project[:version]
+        "v" <> project()[:version]
       _ ->
         raise "Version should be a release version."
     end

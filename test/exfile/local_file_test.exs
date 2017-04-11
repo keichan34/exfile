@@ -5,20 +5,20 @@ defmodule Exfile.LocalFileTest do
 
   @file_contents "hello there"
 
-  def lf_with_file do
+  def lf_with_file() do
     temp = Exfile.Tempfile.random_file!("temp")
     :ok = File.write(temp, @file_contents)
     %LocalFile{path: temp}
   end
 
-  def lf_with_io do
+  def lf_with_io() do
     temp = Exfile.Tempfile.random_file!("temp")
     :ok = File.write(temp, @file_contents)
     {:ok, io} = File.open(temp, [:read, :binary])
     %LocalFile{io: io}
   end
 
-  def lf_with_ram_io do
+  def lf_with_ram_io() do
     {:ok, io} = File.open(@file_contents, [:ram, :binary, :read])
     %LocalFile{io: io}
   end
@@ -29,50 +29,50 @@ defmodule Exfile.LocalFileTest do
   end
 
   test "open/1 works with a file-based LocalFile" do
-    {:ok, io} = LocalFile.open(lf_with_file)
+    {:ok, io} = LocalFile.open(lf_with_file())
     assert IO.binread(io, :all) == @file_contents
   end
 
   test "open/1 works with an IO-based (normal) LocalFile" do
-    {:ok, io} = LocalFile.open(lf_with_io)
+    {:ok, io} = LocalFile.open(lf_with_io())
     assert IO.binread(io, :all) == @file_contents
   end
 
   test "open/1 works with an IO-based (ram) LocalFile" do
-    {:ok, io} = LocalFile.open(lf_with_ram_io)
+    {:ok, io} = LocalFile.open(lf_with_ram_io())
     assert IO.binread(io, :all) == @file_contents
   end
 
   test "copy_to_tempfile/1 works with a file-based LocalFile" do
-    file = LocalFile.copy_to_tempfile(lf_with_file)
+    file = LocalFile.copy_to_tempfile(lf_with_file())
     assert File.exists?(file.path) == true
     assert File.read!(file.path) == @file_contents
   end
 
   test "copy_to_tempfile/1 works with an IO-based (normal) LocalFile" do
-    file = LocalFile.copy_to_tempfile(lf_with_io)
+    file = LocalFile.copy_to_tempfile(lf_with_io())
     assert File.exists?(file.path) == true
     assert File.read!(file.path) == @file_contents
   end
 
   test "copy_to_tempfile/1 works with an IO-based (ram) LocalFile" do
-    file = LocalFile.copy_to_tempfile(lf_with_ram_io)
+    file = LocalFile.copy_to_tempfile(lf_with_ram_io())
     assert File.exists?(file.path) == true
     assert File.read!(file.path) == @file_contents
   end
 
   test "size/1 works with a file-based LocalFile" do
-    {:ok, size} = LocalFile.size(lf_with_file)
+    {:ok, size} = LocalFile.size(lf_with_file())
     assert size == byte_size(@file_contents)
   end
 
   test "size/1 works with an IO-based (normal) LocalFile" do
-    {:ok, size} = LocalFile.size(lf_with_io)
+    {:ok, size} = LocalFile.size(lf_with_io())
     assert size == byte_size(@file_contents)
   end
 
   test "size/1 works with an IO-based (ram) LocalFile" do
-    {:ok, size} = LocalFile.size(lf_with_ram_io)
+    {:ok, size} = LocalFile.size(lf_with_ram_io())
     assert size == byte_size(@file_contents)
   end
 end

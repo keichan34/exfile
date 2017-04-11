@@ -109,7 +109,7 @@ defmodule Exfile.Config do
 
   @doc false
   def code_change(_, state, _) do
-    send(self, :refresh_backend_config)
+    send(self(), :refresh_backend_config)
     {:ok, state}
   end
 

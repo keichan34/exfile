@@ -7,7 +7,7 @@ defmodule Exfile.FileTest do
     file_contents = "hello there"
     {:ok, io} = File.open(file_contents, [:ram, :binary, :read])
     local_file = %Exfile.LocalFile{io: io}
-    {:ok, file} = Exfile.Backend.upload(backend, local_file)
+    {:ok, file} = Exfile.Backend.upload(backend(), local_file)
     # rewind the io because it's been read in the upload process above
     :file.position(io, :bof)
 
