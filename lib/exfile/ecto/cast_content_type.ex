@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Ecto) do
-
 defmodule Exfile.Ecto.CastContentType do
   alias Ecto.Changeset
   alias Exfile.Processor.ContentType, as: ContentTypeProcessor
@@ -26,6 +24,4 @@ defmodule Exfile.Ecto.CastContentType do
       _ -> changeset
     end
   end
-end
-
 end
