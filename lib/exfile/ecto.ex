@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Ecto) do
-
 defmodule Exfile.Ecto do
   alias Ecto.Changeset
 
@@ -45,6 +43,4 @@ defmodule Exfile.Ecto do
   defp ecto_type_for_field(%{__struct__: mod}, field) do
     mod.__schema__(:type, field)
   end
-end
-
 end

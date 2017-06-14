@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Ecto) do
-
 defmodule Exfile.Ecto.ValidateFileSize do
   alias Ecto.Changeset
   alias Exfile.Processor.FileSize, as: FileSizeProcessor
@@ -27,6 +25,4 @@ defmodule Exfile.Ecto.ValidateFileSize do
       |> Changeset.add_error(field, message)
     end
   end
-end
-
 end

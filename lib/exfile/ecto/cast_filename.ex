@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Ecto) do
-
 defmodule Exfile.Ecto.CastFilename do
   alias Ecto.Changeset
 
@@ -15,6 +13,4 @@ defmodule Exfile.Ecto.CastFilename do
         Changeset.put_change(changeset, filename_field, file.meta["filename"])
     end
   end
-end
-
 end

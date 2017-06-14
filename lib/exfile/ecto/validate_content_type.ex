@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Ecto) do
-
 defmodule Exfile.Ecto.ValidateContentType do
   alias Ecto.Changeset
   alias Exfile.Processor.ContentType, as: ContentTypeProcessor
@@ -37,6 +35,4 @@ defmodule Exfile.Ecto.ValidateContentType do
   defp expand_content_types(content_type) when is_atom(content_type) do
     @registered_types[content_type]
   end
-end
-
 end

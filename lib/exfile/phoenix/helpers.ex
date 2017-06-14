@@ -1,5 +1,3 @@
-if Code.ensure_loaded?(Phoenix.HTML) do
-
 defmodule Exfile.Phoenix.Helpers do
   @moduledoc """
   View helpers to use Exfile in your Phoenix app.
@@ -98,6 +96,4 @@ defmodule Exfile.Phoenix.Helpers do
   defp hostname_with_proto_for_url(base) do
     Config.cdn_host || Phoenix.Router.Helpers.url(nil, base)
   end
-end
-
 end
