@@ -3,7 +3,7 @@ defmodule Exfile.Token do
 
   @spec verify_token(Path.t, String.t) :: boolean
   def verify_token(path, token) do
-    case Base.url_decode64(token) do
+    case Base.decode16(token, case: :lower) do
       {:ok, hmac} ->
         hmac == do_generate_token(path)
       :error ->
@@ -17,8 +17,8 @@ defmodule Exfile.Token do
 
   @spec generate_token(Path.t) :: String.t
   def generate_token(path),
-    do: do_generate_token(path) |> Base.url_encode64
+    do: do_generate_token(path) |> Base.encode16(case: :lower)
 
   defp do_generate_token(path),
-    do: :crypto.hmac(:sha256, Exfile.Config.secret, path)
+    do: :crypto.hmac(:sha, Exfile.Config.secret, path)
 end
