@@ -26,6 +26,7 @@ defmodule Exfile.Processor.FileSize do
   # Processing `wc -c path` output
   defp extract_meta(result) do
     result
+    |> String.trim
     |> String.split(" ")
     |> List.first
     |> String.to_integer

@@ -4,7 +4,7 @@ defmodule Exfile.Mixfile do
   def project do
     [
       app: :exfile,
-      version: "0.3.4",
+      version: "0.3.5",
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -56,9 +56,9 @@ defmodule Exfile.Mixfile do
     [
       {:plug, "~> 1.0"},
       {:ecto, "~> 1.0 or ~> 2.0", optional: true},
-      {:phoenix, "~> 1.1", optional: true},
+      {:phoenix, "~> 1.1 or ~> 1.3.0-rc", optional: true},
       {:phoenix_html, "~> 2.3", optional: true},
-      {:poison, "~> 1.5 or ~> 2.0", optional: true},
+      {:poison, "~> 1.5 or ~> 2.0 or ~> 3.1", optional: true},
       {:timex, "~> 2.0", only: [:dev, :test]},
       {:postgrex, "~> 0.11", only: [:dev, :test]},
       {:earmark, "~> 1.1", only: :dev},
