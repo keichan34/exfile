@@ -12,7 +12,7 @@ defmodule Exfile.Router do
 
   defp authenticate(%{path_info: path_info} = conn) do
     [token | rest] = path_info
-    request_path = rest |> Enum.join("/")
+    request_path = Kernel.<> "/", Enum.join(rest, "/")
     if Exfile.Token.verify_token(request_path, token) do
       conn
     else
