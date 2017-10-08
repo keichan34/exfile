@@ -31,7 +31,7 @@ defmodule Exfile.RouterTest do
     conn = conn(:get, "/" <> Token.build_path("cache/exists/test"))
     conn = Router.call(conn, @opts)
 
-    assert conn.state == :sent
+    assert conn.state == :file
     assert conn.status == 200
     assert conn.resp_body == contents
 
@@ -66,7 +66,7 @@ defmodule Exfile.RouterTest do
     conn = conn(:get, "/" <> Token.build_path("cache/reverse/processtest/test"))
     conn = Router.call(conn, @opts)
 
-    assert conn.state == :sent
+    assert conn.state == :file
     assert conn.status == 200
     assert conn.resp_body == String.reverse(contents)
 
@@ -80,7 +80,7 @@ defmodule Exfile.RouterTest do
     conn = conn(:get, "/" <> Token.build_path("cache/reverse-tempfile/processtest-tempfile/test"))
     conn = Router.call(conn, @opts)
 
-    assert conn.state == :sent
+    assert conn.state == :file
     assert conn.status == 200
     assert conn.resp_body == String.reverse(contents)
 
@@ -94,7 +94,7 @@ defmodule Exfile.RouterTest do
     conn = conn(:get, "/" <> Token.build_path("cache/truncate/5/process-arg-test/test"))
     conn = Router.call(conn, @opts)
 
-    assert conn.state == :sent
+    assert conn.state == :file
     assert conn.status == 200
     assert conn.resp_body == "hello"
 
