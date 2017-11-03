@@ -25,7 +25,7 @@ defmodule Exfile.Processor.ContentType do
 
   defp extract_meta(result) do
     result
-    |> String.strip
+    |> String.trim
     |> String.split(": ")
     |> List.last
     |> (&%{ "content_type" => &1 }).()
