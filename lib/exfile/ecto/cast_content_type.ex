@@ -21,7 +21,6 @@ defmodule Exfile.Ecto.CastContentType do
     |> case do
       { :ok, processed_file } ->
         changeset
-        |> Changeset.put_change(field, processed_file)
         |> Changeset.put_change(content_type_field, processed_file.meta["content_type"])
       _ -> changeset
     end
