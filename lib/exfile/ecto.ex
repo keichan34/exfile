@@ -43,8 +43,8 @@ defmodule Exfile.Ecto do
     else
       nil -> #happens if an exfile field is optional and thus might not be set
         changeset
-      _ ->
-        throw "Upload failed"
+      error ->
+        throw error
     end
 
   end
