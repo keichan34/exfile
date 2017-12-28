@@ -24,24 +24,24 @@ defmodule Exfile.Ecto do
   """
   def prepare_uploads(changeset, fields) do
     Changeset.prepare_changes(changeset, fn changeset ->
-      perform_uploads(changeset, fields)
+      perform_uploads!(changeset, fields)
     end)
   end
 
-  defp perform_uploads(changeset, fields) do
+  defp perform_uploads!(changeset, fields) do
     Enum.reduce fields, changeset, fn (field, changeset) ->
-      perform_upload(changeset, field)
+      perform_upload!(changeset, field)
     end
   end
 
-  defp perform_upload(changeset, field) do
+  defp perform_upload!(changeset, field) do
     with {:ok, t} <- ecto_type_for_field(changeset.data, field),
       file when not is_nil(file) <- Changeset.get_field(changeset, field),
       {:ok, uploaded_file} <- t.upload!(file)
     do
       Changeset.put_change(changeset, field, uploaded_file)
     else
-      nil -> #happens if an exfile field is optional and thus might not be set 
+      nil -> #happens if an exfile field is optional and thus might not be set
         changeset
       _ ->
         throw "Upload failed"
