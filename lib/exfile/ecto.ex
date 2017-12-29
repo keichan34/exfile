@@ -29,21 +29,28 @@ defmodule Exfile.Ecto do
   end
 
   defp perform_uploads!(changeset, fields) do
-    Enum.reduce fields, changeset, fn
-      (field, changeset) ->
-        t = ecto_type_for_field(changeset.data, field)
-        file = Changeset.get_field(changeset, field)
-        case t.upload!(file) do
-          {:ok, uploaded_file} ->
-            Changeset.put_change(changeset, field, uploaded_file)
-          error ->
-            throw error
-        end
+    Enum.reduce fields, changeset, fn (field, changeset) ->
+      perform_upload!(changeset, field)
     end
   end
 
+  defp perform_upload!(changeset, field) do
+    with {:ok, t} <- ecto_type_for_field(changeset.data, field),
+      file when not is_nil(file) <- Changeset.get_field(changeset, field),
+      {:ok, uploaded_file} <- t.upload!(file)
+    do
+      Changeset.put_change(changeset, field, uploaded_file)
+    else
+      nil -> #happens if an exfile field is optional and thus might not be set
+        changeset
+      error ->
+        throw error
+    end
+
+  end
+
   defp ecto_type_for_field(%{__struct__: mod}, field) do
-    mod.__schema__(:type, field)
+    {:ok, mod.__schema__(:type, field)}
   end
 end
 
