@@ -64,7 +64,7 @@ defmodule Exfile.Phoenix.Helpers do
 
     path = path ++ [file.id, filename]
 
-    "/attachments/" <> (Enum.join(path, "/") |> Token.build_path)
+    "/attachments/" <> (("/" <> Enum.join(path, "/")) |> Token.build_path)
   end
 
   @doc """
