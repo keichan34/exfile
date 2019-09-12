@@ -28,11 +28,12 @@ defmodule Exfile.Backend do
   @type backend :: t
   @type file_id :: Exfile.File.file_id
   @type uploadable :: Exfile.File.t | Exfile.LocalFile.t
+  @type monitor_pid :: pid() | nil
 
   @callback init([name: String.t]) :: backend | {:error, atom}
 
   @doc """
-  upload/2 must handle at least two cases of `uploadable`:
+  upload/3 must handle at least two cases of `uploadable`:
 
   1. an %Exfile.File{}
   2. an %Exfile.LocalFile{}
@@ -41,7 +42,7 @@ defmodule Exfile.Backend do
   identical backends, if there is a more efficient way to implement it.
   See Exfile.Backend.FileSystem.upload/2 for an example.
   """
-  @callback upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
+  @callback upload(backend, uploadable, monitor_pid) :: {:ok, Exfile.File.t} | {:error, atom}
 
   @doc """
   Construct an Exfile.File struct representing the given file_id.
@@ -104,12 +105,12 @@ defmodule Exfile.Backend do
   @doc """
   Uploads a file to the given backend, applying preprocessors if configured.
   """
-  @spec upload(backend, uploadable) :: {:ok, Exfile.File.t} | {:error, atom}
-  def upload(backend, uploadable) do
+  @spec upload(backend, uploadable, monitor_pid) :: {:ok, Exfile.File.t} | {:error, atom}
+  def upload(backend, uploadable, monitor_pid \\ nil) do
     preprocessors = backend.preprocessors
     with  {:ok, process_result} <- ProcessorChain.apply_processors(preprocessors, uploadable),
           :ok <- verify_file_size(backend, process_result),
-          do: backend.backend_mod.upload(backend, process_result)
+          do: backend.backend_mod.upload(backend, process_result, monitor_pid)
   end
 
   defp verify_file_size(%{max_size: -1}, _), do: :ok
