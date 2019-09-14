@@ -170,7 +170,7 @@ defmodule Exfile.Router do
   end
   defp stream_file(%{assigns: %{exfile_local_file: %LocalFile{io: io}}} = conn) when not is_nil(io) do
     data = IO.binread(io, :all)
-    file = Exfile.Tempfile.random_file!("send")
+    file = Exfile.Tempfile.random_file!("send", connection_pid(conn))
     File.write!(file, data, [:write])
 
     conn
@@ -197,7 +197,7 @@ defmodule Exfile.Router do
     backend = Config.get_backend(backend)
     conn = put_resp_content_type(conn, "application/json")
 
-    case Exfile.Backend.upload(backend, local_file) do
+    case Exfile.Backend.upload(backend, local_file, connection_pid(conn)) do
       {:ok, file} ->
         uri = Exfile.File.uri(file)
         send_resp(conn, 200, ~s({"id":"#{file.id}","uri":"#{uri}"}))
@@ -215,5 +215,15 @@ defmodule Exfile.Router do
     |> :calendar.gregorian_seconds_to_datetime
     |> :httpd_util.rfc1123_date
     |> to_string
+  end
+
+  defp connection_pid(%Plug.Conn{adapter: adapter}) do
+    case adapter do
+      {Plug.Cowboy.Conn, %{pid: connection_pid}} ->
+        connection_pid
+
+      _ ->
+        self()
+    end
   end
 end

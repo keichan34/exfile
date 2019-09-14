@@ -43,7 +43,9 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
-  def upload(backend, %Exfile.File{} = other_file) do
+  def upload(backend, file, monitor_pid \\ nil)
+
+  def upload(backend, %Exfile.File{} = other_file, _monitor_pid) do
     case Exfile.File.open(other_file) do
       {:ok, local_file} ->
         upload(backend, local_file)
@@ -52,9 +54,9 @@ defmodule Exfile.Backend.FileSystem do
     end
   end
 
-  def upload(backend, %LocalFile{} = local_file) do
+  def upload(backend, %LocalFile{} = local_file, monitor_pid) do
     id = backend.hasher.hash(local_file)
-    %LocalFile{path: path} = LocalFile.copy_to_tempfile(local_file)
+    %LocalFile{path: path} = LocalFile.copy_to_tempfile(local_file, monitor_pid)
     File.copy!(path, path(backend, id))
     {:ok, get(backend, id)}
   end

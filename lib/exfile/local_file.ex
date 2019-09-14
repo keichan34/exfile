@@ -53,14 +53,16 @@ defmodule Exfile.LocalFile do
   Once the calling pid dies, the file will be automatically removed from the
   filesystem (see Exfile.Tempfile for more details).
   """
-  @spec copy_to_tempfile(t) :: t | no_return
-  def copy_to_tempfile(%LF{path: path, meta: meta}) when not_nil(path) do
-    temp = Exfile.Tempfile.random_file!("exfile-file")
+  @spec copy_to_tempfile(t, pid() | nil) :: t | no_return
+  def copy_to_tempfile(file, monitor_pid \\ nil)
+
+  def copy_to_tempfile(%LF{path: path, meta: meta}, monitor_pid) when not_nil(path) do
+    temp = Exfile.Tempfile.random_file!("exfile-file", monitor_pid)
     {:ok, _} = File.copy(path, temp)
     %LF{path: temp, meta: meta}
   end
-  def copy_to_tempfile(%LF{io: io, meta: meta}) when not_nil(io) do
-    temp = Exfile.Tempfile.random_file!("exfile-file")
+  def copy_to_tempfile(%LF{io: io, meta: meta}, monitor_pid) when not_nil(io) do
+    temp = Exfile.Tempfile.random_file!("exfile-file", monitor_pid)
     {:ok, true} = File.open temp, [:write, :binary], fn(f) ->
       Enum.into(
         IO.binstream(io, @read_buffer),
@@ -70,10 +72,10 @@ defmodule Exfile.LocalFile do
     end
     %LF{path: temp, meta: meta}
   end
-  def copy_to_tempfile(%LF{io: io, path: path}) when not_nil(io) and not_nil(path) do
+  def copy_to_tempfile(%LF{io: io, path: path}, _monitor_pid) when not_nil(io) and not_nil(path) do
     raise ArgumentError, message: "I expected an Exfile.LocalFile with either an io or a path, not both."
   end
-  def copy_to_tempfile(%LF{io: nil, path: nil}) do
+  def copy_to_tempfile(%LF{io: nil, path: nil}, _monitor_pid) do
     raise ArgumentError, message: "I expected an Exfile.LocalFile with either an io or a path, but you gave me one with neither."
   end
 

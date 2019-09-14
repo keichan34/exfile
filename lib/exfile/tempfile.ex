@@ -14,21 +14,21 @@ defmodule Exfile.Tempfile do
   Requests a random file to be created in the temporary directory
   with the given prefix.
   """
-  @spec random_file(binary) ::
+  @spec random_file(binary, pid() | nil) ::
         {:ok, binary} |
         {:too_many_attempts, binary, pos_integer} |
         {:no_tmp, [binary]}
-  def random_file(prefix) do
-    GenServer.call(tempfile_server(), {:random, prefix})
+  def random_file(prefix, monitor_pid \\ nil) do
+    GenServer.call(tempfile_server(), {:random, prefix, monitor_pid || self()})
   end
 
   @doc """
   Requests a random file to be created in the temporary directory
   with the given prefix. Raises on failure.
   """
-  @spec random_file!(binary) :: binary | no_return
-  def random_file!(prefix) do
-    case random_file(prefix) do
+  @spec random_file!(binary, pid() | nil) :: binary | no_return
+  def random_file!(prefix, monitor_pid \\ nil) do
+    case random_file(prefix, monitor_pid) do
       {:ok, path} ->
         path
       {:too_many_attempts, tmp, attempts} ->
@@ -40,9 +40,9 @@ defmodule Exfile.Tempfile do
 
   @doc """
   """
-  @spec register_file(binary) :: :ok
-  def register_file(path) do
-    GenServer.call(tempfile_server(), {:register_file, path})
+  @spec register_file(binary, pid() | nil) :: :ok
+  def register_file(path, monitor_pid \\ nil) do
+    GenServer.call(tempfile_server(), {:register_file, path, monitor_pid || self()})
   end
 
   defp tempfile_server() do
@@ -72,7 +72,7 @@ defmodule Exfile.Tempfile do
   end
 
   @doc false
-  def handle_call({:random, prefix}, {pid, _ref}, {tmps, ets} = state) do
+  def handle_call({:random, prefix, pid}, _, {tmps, ets} = state) do
     case find_tmp_dir(pid, tmps, ets) do
       {:ok, tmp, paths} ->
         {:reply, open_random_file(prefix, tmp, 0, pid, ets, paths), state}
@@ -81,7 +81,7 @@ defmodule Exfile.Tempfile do
     end
   end
 
-  def handle_call({:register_file, path}, {pid, _ref}, {tmps, ets} = state) do
+  def handle_call({:register_file, path, pid}, _, {tmps, ets} = state) do
     case find_tmp_dir(pid, tmps, ets) do
       {:ok, _tmp, paths} ->
         :ets.update_element(ets, pid, {3, [path|paths]})
