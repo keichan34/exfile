@@ -25,6 +25,8 @@ adapter is included (`Exfile.Backend.FileSystem`) as an example.
 * [exfile-b2](https://github.com/keichan34/exfile-b2) -- storage adapter for
 	the [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html) cloud
 	storage service.
+* [exfile-s3](https://github.com/MattNguyen/exfile-s3) -- storage adapter for
+	[AWS S3](https://aws.amazon.com/s3/).
 
 ## File Processors
 
