@@ -11,6 +11,8 @@
 * The Exfile URI of a file, specifying both the backend and file ID, is now stored
 	in the Ecto field. Exfile recognizes vanilla file IDs, but this may be 
 	removed by v1.0. (An Exfile URI looks like `exfile://[backend name]/[file id]`)
+* Bumped Ecto and related dependency from "~> 1.0 or ~> 2.0" to "~> 3.0"
+* Drop support for Elixir <1.4 as Ecto v3 depends on Elixir >=1.4
 
 ## v0.3.3
 
