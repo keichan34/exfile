@@ -30,6 +30,7 @@ defmodule Exfile.Ecto.FileTemplate do
   defmacro __using__(opts) do
     backend_name = Keyword.get(opts, :backend, "store")
     cache_backend_name = Keyword.get(opts, :cache_backend, "cache")
+
     quote do
       @moduledoc """
       An `Ecto.Type` used to handle files persisted to the
@@ -63,15 +64,19 @@ defmodule Exfile.Ecto.FileTemplate do
       exfile://[backend name]/[file ID]
       ```
       """
-      def cast(%Exfile.File{backend: %{backend_name: name}} = file) when not name in [unquote(backend_name), unquote(cache_backend_name)] do
+      def cast(%Exfile.File{backend: %{backend_name: name}} = file)
+          when name not in [unquote(backend_name), unquote(cache_backend_name)] do
         case Exfile.Backend.upload(cache_backend(), file) do
           {:ok, new_file} ->
             {:ok, new_file}
+
           {:error, _reason} ->
             :error
         end
       end
+
       def cast(%Exfile.File{} = file), do: {:ok, file}
+
       def cast(%Plug.Upload{path: path, filename: filename}) do
         cast(%Exfile.LocalFile{
           path: path,
@@ -80,23 +85,29 @@ defmodule Exfile.Ecto.FileTemplate do
           }
         })
       end
+
       def cast(%Exfile.LocalFile{} = local_file) do
         case Exfile.Backend.upload(cache_backend(), local_file) do
           {:ok, new_file} ->
             meta = Map.merge(new_file.meta, local_file.meta)
-            new_file = %{ new_file | meta: meta }
+            new_file = %{new_file | meta: meta}
             {:ok, new_file}
+
           {:error, _reason} ->
             :error
         end
       end
+
       def cast(%URI{scheme: "exfile", host: remote_backend_name, path: "/" <> file_id}) do
         case Exfile.Config.get_backend(remote_backend_name) do
-          {:error, _} -> :error
+          {:error, _} ->
+            :error
+
           backend ->
             cast(Exfile.Backend.get(backend, file_id))
         end
       end
+
       def cast(uri) when is_binary(uri), do: URI.parse(uri) |> cast()
       def cast(_), do: :error
 
@@ -107,6 +118,7 @@ defmodule Exfile.Ecto.FileTemplate do
       Supports loading a plain ID for backwards compatibility.
       """
       def load("exfile://" <> _ = file_uri), do: URI.parse(file_uri) |> load
+
       def load(file_id) when is_binary(file_id) do
         load(%URI{
           scheme: "exfile",
@@ -114,9 +126,12 @@ defmodule Exfile.Ecto.FileTemplate do
           path: "/" <> file_id
         })
       end
+
       def load(%URI{scheme: "exfile", host: remote_backend_name, path: "/" <> file_id}) do
         case Exfile.Config.get_backend(remote_backend_name) do
-          {:error, _} -> :error
+          {:error, _} ->
+            :error
+
           backend ->
             {:ok, Exfile.Backend.get(backend, file_id)}
         end
@@ -128,6 +143,15 @@ defmodule Exfile.Ecto.FileTemplate do
       """
       def dump(%Exfile.File{} = file), do: {:ok, Exfile.File.uri(file)}
       def dump(_), do: :error
+
+      def equal?(value1, value2) do
+        with {:ok, file1} <- cast(value1),
+             {:ok, file2} <- cast(value2) do
+          file1 == file2
+        else
+          _ -> false
+        end
+      end
 
       @doc """
       Uploads a file from the `#{unquote(cache_backend_name)}` backend to the
